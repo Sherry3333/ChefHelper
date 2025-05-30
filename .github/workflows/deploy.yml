@@ -1,0 +1,102 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+      - test-deployment
+    paths:
+      - 'ChefFrontend/**'
+      - 'ChefBackend/**'
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_changed: ${{ steps.filter.outputs.frontend }}
+      backend_changed: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'ChefFrontend/**'
+            backend:
+              - 'ChefBackend/**'
+
+  deploy-frontend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: ./ChefFrontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: ./ChefFrontend
+        run: npm test
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker image (frontend)
+        run: |
+          docker build -t sherry3333/chefrontend:1.0 ./ChefFrontend
+          docker push sherry3333/chefrontend:1.0
+
+  deploy-backend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore backend dependencies
+        working-directory: ./ChefBackend
+        run: dotnet restore
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker image (backend)
+        run: |
+          docker build -t sherry3333/chefbackend:1.0 ./ChefBackend
+          docker push sherry3333/chefbackend:1.0
+
+  deploy-on-ec2:
+    needs: [deploy-frontend, deploy-backend]
+    if: needs.deploy-frontend.result == 'success' || needs.deploy-backend.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect and pull images + restart services
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ec2-user
+            docker pull sherry3333/chefrontend:1.0 || true
+            docker pull sherry3333/chefbackend:1.0 || true
+            docker-compose up -d

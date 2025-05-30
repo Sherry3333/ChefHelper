@@ -1,0 +1,23 @@
+# ignore Git files and other unnecessary files
+.git
+.gitignore
+*.log
+*.md
+
+# ignore node_modules folder
+node_modules
+
+# ignore build and dist folders
+build
+dist
+
+# ignore docker-compose.yml
+Dockerfile
+docker-compose.yml
+
+# ignore os generated files
+.DS_Store
+.vscode
+.idea
+*.swp
+*.tmp

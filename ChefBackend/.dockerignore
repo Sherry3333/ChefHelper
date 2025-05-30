@@ -1,0 +1,25 @@
+# ignore git and other version control files
+.git
+.gitignore
+*.md
+*.env
+*.log
+
+# ignore build and test files
+bin/
+obj/
+*.suo
+*.user
+*.dbmdl
+*.vspscc
+*.vssscc
+
+# ignore IDE files
+.vscode/
+.idea/
+.vs/
+
+# ignore OS generated files
+.DS_Store
+*.swp
+*.tmp
