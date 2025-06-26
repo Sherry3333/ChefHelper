@@ -1,42 +1,24 @@
-using ChefBackend.Models;
-using DotNetEnv;
 using MongoDB.Driver;
+using DotNetEnv;
 
-namespace ChefBackend.Services;
-
-public class DbService{
-    private readonly IMongoCollection<Recipe> _recipeCollection;
+// Generic database service for MongoDB connection and collection access
+public class DbService
+{
+    private readonly IMongoDatabase _database;
 
     public DbService()
     {
+        // Load environment variables
         Env.Load();
-        var settings = new MongoDbSettings
-        {
-            ConnectStr = Env.GetString("MONGO_CONNECTION_STRING"),
-            DatabaseName = Env.GetString("MONGO_DATABASE"),
-            CollectionName = Env.GetString("MONGO_COLLECTION")
-        };
-
-        var client = new MongoClient(settings.ConnectStr);
-        var database = client.GetDatabase(settings.DatabaseName);
-        _recipeCollection = database.GetCollection<Recipe>(settings.CollectionName);
+        var connectStr = Env.GetString("MONGO_CONNECTION_STRING");
+        var dbName = Env.GetString("MONGO_DATABASE");
+        var client = new MongoClient(connectStr);
+        _database = client.GetDatabase(dbName);
     }
 
-    // add
-    public async Task CreateAsync(Recipe recipe) => await _recipeCollection.InsertOneAsync(recipe);
-
-    // get
-    public async Task<List<Recipe>> GetAsync() => await _recipeCollection.Find(_ => true).ToListAsync();
-
-    // getById  The method may return a Recipe object or null
-    public async Task<Recipe?> GetByIdAsync(string id) => 
-        await _recipeCollection.Find(u => u.Id == id).FirstOrDefaultAsync();
-
-    // updete
-    public async Task UpdateAsync(string id, Recipe recipe) =>
-        await _recipeCollection.ReplaceOneAsync(u => u.Id == id, recipe);
-
-    // delete
-    public async Task DeleteAsync(string id) =>
-        await _recipeCollection.DeleteOneAsync(u => u.Id == id);
+    // Get a MongoDB collection by type and name
+    public IMongoCollection<T> GetCollection<T>(string collectionName)
+    {
+        return _database.GetCollection<T>(collectionName);
+    }
 }

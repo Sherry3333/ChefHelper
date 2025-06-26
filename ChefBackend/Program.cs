@@ -1,5 +1,5 @@
-using ChefBackend.Services;
 using DotNetEnv;
+using ChefBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +9,12 @@ DotNetEnv.Env.Load();
 builder.Services.AddControllers();
 //add mongodb service
 builder.Services.AddSingleton<DbService>();
+builder.Services.AddScoped<RecipeService>();
+builder.Services.AddScoped<SeasonalIngredientService>();
+builder.Services.AddScoped<SeasonalIngredientInitializer>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<SpoonacularService>();
+builder.Services.AddMemoryCache();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -35,6 +41,13 @@ if (app.Environment.IsDevelopment())
 // add CORS before UseAuthorization
 app.UseCors("AllowAll");
 
+// Initialize seasonal ingredients if needed
+using (var scope = app.Services.CreateScope())
+{
+    var initializer = scope.ServiceProvider.GetRequiredService<SeasonalIngredientInitializer>();
+    string jsonPath = Path.Combine(AppContext.BaseDirectory, "seasonal_ingredients.json");
+    await initializer.InitializeAsync(jsonPath);
+}
 
 app.MapControllers(); //make sure Api controllers are mapped
 

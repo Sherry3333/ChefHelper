@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-const API_URL = "/recipe"; // 请根据你的 C# 后端 URL 修改
+// All API calls use relative paths for proxy-based development
+const API_URL = "/recipe"; 
 
 export async function fetchRecipes() {
     try {
         const response = await axios.get(API_URL + "/all");
 
-        return response.data; // 返回数据
+        return response.data; 
     } catch (error) {
         console.error("Failed to fetch recipes:", error);
         return [];  
@@ -43,5 +44,30 @@ export async function updateRecipe(id, updatedRecipe) {
         console.log(`Recipe with id ${id} updated`, response.data);
     } catch (error) {
         console.error(`Error updating recipe with id ${id}:`, error);
+    }
+}
+
+// Fetch seasonal recipes from backend
+export async function fetchSeasonalRecipes(latitude, longitude, count = 9) {
+    try {
+        const response = await axios.post('/season/recipes', {
+            latitude,
+            longitude,
+            count
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch seasonal recipes:', error);
+        return [];
+    }
+}
+
+export async function fetchRecipeDetail(id) {
+    try {
+        const response = await axios.get(`/season/recipes/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch recipe detail:', error);
+        return null;
     }
 }

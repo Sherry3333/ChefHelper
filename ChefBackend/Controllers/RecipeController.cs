@@ -1,14 +1,14 @@
-using ChefBackend.Services;
+
 using Microsoft.AspNetCore.Mvc;
 
 
 [ApiController]
 [Route("/recipe")]
 public class RecipeController : ControllerBase{
-    private readonly DbService _dbService;
+    private readonly RecipeService _dbService;
 
-    public RecipeController(){
-        _dbService = new DbService();
+    public RecipeController(RecipeService recipeService){
+        _dbService = recipeService;
     }
 
     //Get all 

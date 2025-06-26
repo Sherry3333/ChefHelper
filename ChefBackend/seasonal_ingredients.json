@@ -1,0 +1,1522 @@
+[
+  {
+    "ingredient": "spinach",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 23,
+      "vitaminC": "28mg"
+    }
+  },
+  {
+    "ingredient": "asparagus",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "stem"
+    ],
+    "nutrition": {
+      "calories": 20,
+      "vitaminC": "5mg"
+    }
+  },
+  {
+    "ingredient": "peas",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "legume"
+    ],
+    "nutrition": {
+      "calories": 81,
+      "vitaminC": "40mg"
+    }
+  },
+  {
+    "ingredient": "lettuce",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 15,
+      "vitaminC": "3mg"
+    }
+  },
+  {
+    "ingredient": "radish",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 16,
+      "vitaminC": "15mg"
+    }
+  },
+  {
+    "ingredient": "chives",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "herb"
+    ],
+    "nutrition": {
+      "calories": 30,
+      "vitaminC": "58mg"
+    }
+  },
+  {
+    "ingredient": "fennel",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "bulb"
+    ],
+    "nutrition": {
+      "calories": 31,
+      "vitaminC": "12mg"
+    }
+  },
+  {
+    "ingredient": "spring onion",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "stem"
+    ],
+    "nutrition": {
+      "calories": 32,
+      "vitaminC": "8mg"
+    }
+  },
+  {
+    "ingredient": "arugula",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 25,
+      "vitaminC": "15mg"
+    }
+  },
+  {
+    "ingredient": "broccoli",
+    "region": "North",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "flower"
+    ],
+    "nutrition": {
+      "calories": 34,
+      "vitaminC": "89mg"
+    }
+  },
+  {
+    "ingredient": "tomatoes",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 18,
+      "vitaminC": "14mg"
+    }
+  },
+  {
+    "ingredient": "cucumbers",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 15,
+      "vitaminC": "3mg"
+    }
+  },
+  {
+    "ingredient": "zucchini",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "squash"
+    ],
+    "nutrition": {
+      "calories": 17,
+      "vitaminC": "17mg"
+    }
+  },
+  {
+    "ingredient": "corn",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      7,
+      8,
+      9
+    ],
+    "tags": [
+      "grain"
+    ],
+    "nutrition": {
+      "calories": 86,
+      "vitaminC": "7mg"
+    }
+  },
+  {
+    "ingredient": "eggplant",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 25,
+      "vitaminC": "2mg"
+    }
+  },
+  {
+    "ingredient": "bell peppers",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 20,
+      "vitaminC": "80mg"
+    }
+  },
+  {
+    "ingredient": "green beans",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "legume"
+    ],
+    "nutrition": {
+      "calories": 31,
+      "vitaminC": "12mg"
+    }
+  },
+  {
+    "ingredient": "okra",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "pod"
+    ],
+    "nutrition": {
+      "calories": 33,
+      "vitaminC": "21mg"
+    }
+  },
+  {
+    "ingredient": "basil",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "herb"
+    ],
+    "nutrition": {
+      "calories": 23,
+      "vitaminC": "18mg"
+    }
+  },
+  {
+    "ingredient": "kohlrabi",
+    "region": "North",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "bulb"
+    ],
+    "nutrition": {
+      "calories": 27,
+      "vitaminC": "62mg"
+    }
+  },
+  {
+    "ingredient": "pumpkin",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "squash"
+    ],
+    "nutrition": {
+      "calories": 26,
+      "vitaminC": "9mg"
+    }
+  },
+  {
+    "ingredient": "carrot",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 41,
+      "vitaminC": "7mg"
+    }
+  },
+  {
+    "ingredient": "beetroot",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 43,
+      "vitaminC": "4mg"
+    }
+  },
+  {
+    "ingredient": "cauliflower",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "flower"
+    ],
+    "nutrition": {
+      "calories": 25,
+      "vitaminC": "46mg"
+    }
+  },
+  {
+    "ingredient": "cabbage",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 25,
+      "vitaminC": "36mg"
+    }
+  },
+  {
+    "ingredient": "sweet potato",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 86,
+      "vitaminC": "2mg"
+    }
+  },
+  {
+    "ingredient": "apple",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 52,
+      "vitaminC": "4mg"
+    }
+  },
+  {
+    "ingredient": "pear",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 57,
+      "vitaminC": "5mg"
+    }
+  },
+  {
+    "ingredient": "grapes",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 69,
+      "vitaminC": "10mg"
+    }
+  },
+  {
+    "ingredient": "turnip",
+    "region": "North",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 28,
+      "vitaminC": "21mg"
+    }
+  },
+  {
+    "ingredient": "kale",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 35,
+      "vitaminC": "120mg"
+    }
+  },
+  {
+    "ingredient": "leek",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "stem"
+    ],
+    "nutrition": {
+      "calories": 61,
+      "vitaminC": "12mg"
+    }
+  },
+  {
+    "ingredient": "radicchio",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 23,
+      "vitaminC": "8mg"
+    }
+  },
+  {
+    "ingredient": "endive",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 17,
+      "vitaminC": "6mg"
+    }
+  },
+  {
+    "ingredient": "parsnip",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 75,
+      "vitaminC": "17mg"
+    }
+  },
+  {
+    "ingredient": "rutabaga",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 37,
+      "vitaminC": "25mg"
+    }
+  },
+  {
+    "ingredient": "celery root",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 42,
+      "vitaminC": "8mg"
+    }
+  },
+  {
+    "ingredient": "brussels sprouts",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "bud"
+    ],
+    "nutrition": {
+      "calories": 43,
+      "vitaminC": "85mg"
+    }
+  },
+  {
+    "ingredient": "onion",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "bulb"
+    ],
+    "nutrition": {
+      "calories": 40,
+      "vitaminC": "7mg"
+    }
+  },
+  {
+    "ingredient": "orange",
+    "region": "North",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 47,
+      "vitaminC": "53mg"
+    }
+  },
+  {
+    "ingredient": "spinach",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 23,
+      "vitaminC": "28mg"
+    }
+  },
+  {
+    "ingredient": "asparagus",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "stem"
+    ],
+    "nutrition": {
+      "calories": 20,
+      "vitaminC": "5mg"
+    }
+  },
+  {
+    "ingredient": "peas",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "legume"
+    ],
+    "nutrition": {
+      "calories": 81,
+      "vitaminC": "40mg"
+    }
+  },
+  {
+    "ingredient": "lettuce",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 15,
+      "vitaminC": "3mg"
+    }
+  },
+  {
+    "ingredient": "radish",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 16,
+      "vitaminC": "15mg"
+    }
+  },
+  {
+    "ingredient": "chives",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "herb"
+    ],
+    "nutrition": {
+      "calories": 30,
+      "vitaminC": "58mg"
+    }
+  },
+  {
+    "ingredient": "fennel",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "bulb"
+    ],
+    "nutrition": {
+      "calories": 31,
+      "vitaminC": "12mg"
+    }
+  },
+  {
+    "ingredient": "spring onion",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "stem"
+    ],
+    "nutrition": {
+      "calories": 32,
+      "vitaminC": "8mg"
+    }
+  },
+  {
+    "ingredient": "arugula",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 25,
+      "vitaminC": "15mg"
+    }
+  },
+  {
+    "ingredient": "broccoli",
+    "region": "South",
+    "season": "Autumn",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      9,
+      10,
+      11
+    ],
+    "tags": [
+      "flower"
+    ],
+    "nutrition": {
+      "calories": 34,
+      "vitaminC": "89mg"
+    }
+  },
+  {
+    "ingredient": "tomatoes",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 18,
+      "vitaminC": "14mg"
+    }
+  },
+  {
+    "ingredient": "cucumbers",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 15,
+      "vitaminC": "3mg"
+    }
+  },
+  {
+    "ingredient": "zucchini",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "squash"
+    ],
+    "nutrition": {
+      "calories": 17,
+      "vitaminC": "17mg"
+    }
+  },
+  {
+    "ingredient": "corn",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      1,
+      2,
+      3
+    ],
+    "tags": [
+      "grain"
+    ],
+    "nutrition": {
+      "calories": 86,
+      "vitaminC": "7mg"
+    }
+  },
+  {
+    "ingredient": "eggplant",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 25,
+      "vitaminC": "2mg"
+    }
+  },
+  {
+    "ingredient": "bell peppers",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 20,
+      "vitaminC": "80mg"
+    }
+  },
+  {
+    "ingredient": "green beans",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "legume"
+    ],
+    "nutrition": {
+      "calories": 31,
+      "vitaminC": "12mg"
+    }
+  },
+  {
+    "ingredient": "okra",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "pod"
+    ],
+    "nutrition": {
+      "calories": 33,
+      "vitaminC": "21mg"
+    }
+  },
+  {
+    "ingredient": "basil",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "herb"
+    ],
+    "nutrition": {
+      "calories": 23,
+      "vitaminC": "18mg"
+    }
+  },
+  {
+    "ingredient": "kohlrabi",
+    "region": "South",
+    "season": "Winter",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      12,
+      1,
+      2
+    ],
+    "tags": [
+      "bulb"
+    ],
+    "nutrition": {
+      "calories": 27,
+      "vitaminC": "62mg"
+    }
+  },
+  {
+    "ingredient": "pumpkin",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "squash"
+    ],
+    "nutrition": {
+      "calories": 26,
+      "vitaminC": "9mg"
+    }
+  },
+  {
+    "ingredient": "carrot",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 41,
+      "vitaminC": "7mg"
+    }
+  },
+  {
+    "ingredient": "beetroot",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 43,
+      "vitaminC": "4mg"
+    }
+  },
+  {
+    "ingredient": "cauliflower",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "flower"
+    ],
+    "nutrition": {
+      "calories": 25,
+      "vitaminC": "46mg"
+    }
+  },
+  {
+    "ingredient": "cabbage",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 25,
+      "vitaminC": "36mg"
+    }
+  },
+  {
+    "ingredient": "sweet potato",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 86,
+      "vitaminC": "2mg"
+    }
+  },
+  {
+    "ingredient": "apple",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 52,
+      "vitaminC": "4mg"
+    }
+  },
+  {
+    "ingredient": "pear",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 57,
+      "vitaminC": "5mg"
+    }
+  },
+  {
+    "ingredient": "grapes",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 69,
+      "vitaminC": "10mg"
+    }
+  },
+  {
+    "ingredient": "turnip",
+    "region": "South",
+    "season": "Spring",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      3,
+      4,
+      5
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 28,
+      "vitaminC": "21mg"
+    }
+  },
+  {
+    "ingredient": "kale",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 35,
+      "vitaminC": "120mg"
+    }
+  },
+  {
+    "ingredient": "leek",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "stem"
+    ],
+    "nutrition": {
+      "calories": 61,
+      "vitaminC": "12mg"
+    }
+  },
+  {
+    "ingredient": "radicchio",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 23,
+      "vitaminC": "8mg"
+    }
+  },
+  {
+    "ingredient": "endive",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "leafy"
+    ],
+    "nutrition": {
+      "calories": 17,
+      "vitaminC": "6mg"
+    }
+  },
+  {
+    "ingredient": "parsnip",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 75,
+      "vitaminC": "17mg"
+    }
+  },
+  {
+    "ingredient": "rutabaga",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 37,
+      "vitaminC": "25mg"
+    }
+  },
+  {
+    "ingredient": "celery root",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "root"
+    ],
+    "nutrition": {
+      "calories": 42,
+      "vitaminC": "8mg"
+    }
+  },
+  {
+    "ingredient": "brussels sprouts",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "bud"
+    ],
+    "nutrition": {
+      "calories": 43,
+      "vitaminC": "85mg"
+    }
+  },
+  {
+    "ingredient": "onion",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "bulb"
+    ],
+    "nutrition": {
+      "calories": 40,
+      "vitaminC": "7mg"
+    }
+  },
+  {
+    "ingredient": "orange",
+    "region": "South",
+    "season": "Summer",
+    "localized_name": null,
+    "image_url": null,
+    "available_months": [
+      6,
+      7,
+      8
+    ],
+    "tags": [
+      "fruit"
+    ],
+    "nutrition": {
+      "calories": 47,
+      "vitaminC": "53mg"
+    }
+  }
+]
