@@ -212,6 +212,7 @@ nav a:hover {
 .main-header nav {
   display: flex;
   gap: 18px;
+  align-items: center;
 }
 
 .main-header nav a {
@@ -230,8 +231,8 @@ nav a:hover {
 }
 
 .main-header nav a.active {
-  background: #ffe5d0;      /* 高亮色，可自定义 */
-  color: #D17557;           /* 主色 */
+  background: #ffe5d0;
+  color: #D17557;
 }
 
 .main-header nav a:hover:not(.active) {
@@ -239,9 +240,92 @@ nav a:hover {
   color: #222;
 }
 
+
+
+/* Profile menu style */
+.profile-menu-wrapper {
+  position: relative;
+  margin-left: 16px;
+  display: inline-block;
+}
+
+.profile-btn {
+  background: none;
+  border: none;
+  font-size: 1.08rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 22px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #222;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.profile-btn.open, .profile-btn:focus {
+  background: #ffe5d0;
+  color: #D17557;
+  box-shadow: 0 2px 8px #0002;
+  outline: 2px solid #D17557;
+}
+.profile-arrow {
+  font-size: 12px;
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background: #fff;
+  box-shadow: 0 4px 16px #0002;
+  border-radius: 10px;
+  min-width: 180px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  animation: fadeIn 0.2s;
+  border: 1px solid #eee;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.profile-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 22px;
+  border: none;
+  background: none;
+  font-size: 1.08rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  border-radius: 0;
+  color: #222;
+}
+.profile-menu-item:hover {
+  background: #ffe5d0;
+  color: #D17557;
+}
+.profile-menu-divider {
+  border-top: 1px solid #eee;
+  margin: 6px 0;
+}
+.profile-menu-item.logout {
+  color: #d22;
+}
+.profile-menu-item.logout:hover {
+  background: #ffe5d0;
+  color: #d22;
+}
+
 @media (max-width: 600px) {
   .seasonal-recipe-card {
-    width: 90vw;   /* 屏幕宽度的90% */
+    width: 90vw;  
     min-width: 0;
   }
 }

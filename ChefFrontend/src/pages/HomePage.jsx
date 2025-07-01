@@ -1,7 +1,7 @@
 import React from "react";
 import SeasonalCarousel from "../components/SeasonalCarousel";
 import RecipeDetailSection from "../components/RecipeDetailSection";
-import { fetchSeasonalRecipes, fetchRecipeDetail } from "../hooks/recipesServices";
+import { fetchSeasonalRecipes, fetchRecipeDetail } from "../services/recipesServices";
 
 export default function HomePage() {
   const [seasonalRecipes, setSeasonalRecipes] = React.useState([]);
@@ -48,6 +48,8 @@ export default function HomePage() {
     speed: 500,
     slidesToShow: 4,
     slidesToScroll: 4,
+    autoplay: true,
+    autoplaySpeed: 3000,
     responsive: [
       {
         breakpoint: 1200,

@@ -2,7 +2,7 @@ import React from "react";
 import IngredientsList from "../components/IngredientsList";
 import ClaudeRecipe from "../components/ClaudeRecipe";
 import { getRecipeFromMistral } from "../ai";
-import { saveRecipe } from "../hooks/recipesServices";
+import { saveRecipe } from "../services/recipesServices";
 
 export default function FridgeAIPage() {
   const [ingredients, setIngredients] = React.useState([]);

@@ -28,4 +28,10 @@ public class RecipeService
     // Delete a recipe by ID
     public async Task DeleteAsync(string id) =>
         await _recipeCollection.DeleteOneAsync(u => u.Id == id);
+
+    public async Task<List<Recipe>> GetByIdsAsync(List<string> ids)
+    {
+        var filter = Builders<Recipe>.Filter.In(r => r.Id, ids);
+        return await _recipeCollection.Find(filter).ToListAsync();
+    }
 } 

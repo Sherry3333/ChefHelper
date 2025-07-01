@@ -7,7 +7,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/season': 'http://localhost:5218',
-      '/recipe': 'http://localhost:5218'
+      '/recipe': 'http://localhost:5218',
+      '/auth': 'http://localhost:5218',
+      '/user': 'http://localhost:5218'
     }
   },
   test: {

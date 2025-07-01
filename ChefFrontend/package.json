@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@huggingface/inference": "^3.6.2",
+    "@react-oauth/google": "^0.12.2",
     "axios": "^1.8.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
