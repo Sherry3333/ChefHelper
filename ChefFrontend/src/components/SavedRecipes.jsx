@@ -6,7 +6,7 @@ export default function SavedRecipes({ recipes = [] }) {
     const [expandedRecipe, setExpandedRecipe] = useState(null);
     const [localRecipes, setLocalRecipes] = useState(recipes);
 
-    // 同步 props 变化
+    // sync props change
     React.useEffect(() => {
         setLocalRecipes(recipes);
     }, [recipes]);

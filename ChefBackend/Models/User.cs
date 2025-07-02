@@ -18,8 +18,5 @@ namespace ChefBackend.Models
 
         [BsonElement("googleId")]
         public string? GoogleId { get; set; }
-
-        [BsonElement("favorites")]
-        public List<string> Favorites { get; set; } = new List<string>();
     }
 } 

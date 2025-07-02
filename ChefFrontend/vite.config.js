@@ -6,10 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/season': 'http://localhost:5218',
-      '/recipe': 'http://localhost:5218',
+      '/recipes': 'http://localhost:5218',
+      '/myrecipe': 'http://localhost:5218',
       '/auth': 'http://localhost:5218',
-      '/user': 'http://localhost:5218'
+      '/user': 'http://localhost:5218',
+      '/favorites': 'http://localhost:5218'
     }
   },
   test: {

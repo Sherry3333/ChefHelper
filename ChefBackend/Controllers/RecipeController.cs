@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 
 [ApiController]
-[Route("/recipe")]
+[Route("myrecipe/")]
 public class RecipeController : ControllerBase{
     private readonly RecipeService _dbService;
 

@@ -1,12 +1,24 @@
-import React from "react";
-import IngredientsList from "../components/IngredientsList";
-import ClaudeRecipe from "../components/ClaudeRecipe";
-import { getRecipeFromMistral } from "../ai";
-import { saveRecipe } from "../services/recipesServices";
+import React, { useEffect, useState } from "react";
+import FridgeAI from "../components/FridgeAI";
+import RecipeDetailSection from "../components/RecipeDetailSection";
+import Modal from "../components/Modal";
+import { fetchRecipesByIngredients, saveRecipe, fetchFavoriteRecipes, addFavorite, removeFavorite, fetchRecipeDetail } from "../services/recipesServices";
+import { useAuth } from "../context/AuthContext";
 
 export default function FridgeAIPage() {
   const [ingredients, setIngredients] = React.useState([]);
-  const [recipe, setRecipe] = React.useState("");
+  const [recipes, setRecipes] = React.useState([]);
+  const [favoriteIds, setFavoriteIds] = useState([]); // Store spoonacularIds
+  const [selectedRecipeDetail, setSelectedRecipeDetail] = useState(null);
+  const { isLoggedIn } = useAuth();
+  const [error, setError] = useState(null);
+
+  // Fetch user favorites on mount
+  useEffect(() => {
+    fetchFavoriteRecipes().then(favs => {
+      setFavoriteIds(favs.map(r => r.spoonacularId));
+    });
+  }, []);
 
   function addIngredient(formData) {
     const newIngredient = formData.get("ingredient");
@@ -14,50 +26,72 @@ export default function FridgeAIPage() {
   }
 
   async function getRecipe() {
-    const recipeMarkdown = await getRecipeFromMistral(ingredients);
-    setRecipe(recipeMarkdown);
+    try {
+      const recipesData = await fetchRecipesByIngredients(ingredients, 8);
+      setRecipes(recipesData);
+    } catch (error) {
+      setError((error.response && error.response.data && error.response.data.error) || error.message || 'Failed to load data');
+      setRecipes([]); // clear the previous recipes
+    }
   }
 
   async function handleSaveRecipe() {
     const recipeName = prompt("Enter a name for your recipe:");
     if (!recipeName) {
-      alert("Recipe name cannot be empty.");
       return;
     }
     try {
-      await saveRecipe(recipeName, ingredients.join(", "), recipe);
-      alert("Recipe saved!");
+      await saveRecipe(recipeName, ingredients.join(", "), "Recipe content");
     } catch (error) {
       console.error("Error saving recipe:", error);
     }
   }
 
+  // Toggle favorite/unfavorite for a recipe
+  const toggleFavorite = async (spoonacularId) => {
+    if (!isLoggedIn) {
+      return;
+    }
+    if (favoriteIds.includes(spoonacularId)) {
+      await removeFavorite(spoonacularId);
+      setFavoriteIds(ids => ids.filter(id => id !== spoonacularId));
+    } else {
+      await addFavorite(spoonacularId);
+      setFavoriteIds(ids => [...ids, spoonacularId]);
+    }
+  };
+
+  // Handle card click to show detail modal
+  async function handleRecipeClick(spoonacularId) {
+    try {
+      const detail = await fetchRecipeDetail(spoonacularId);
+      setSelectedRecipeDetail(detail);
+    } catch (err) {
+      setError((err.response && err.response.data && err.response.data.error) || err.message || 'Failed to fetch recipe detail');
+    }
+  }
+
   return (
     <main>
-      <section className="fridge-ai-section">
-        <h2>Fridge AI</h2>
-        <form action={addIngredient} className="add-ingredient-form">
-          <input
-            type="text"
-            placeholder="e.g. oregano"
-            aria-label="Add ingredient"
-            name="ingredient"
-          />
-          <button>Add ingredient</button>
-        </form>
-        {ingredients.length > 0 &&
-          <IngredientsList
-            ingredients={ingredients}
-            getRecipe={getRecipe}
-          />
-        }
-        {recipe && <ClaudeRecipe recipe={recipe} />}
-        {recipe && (
-          <div>
-            <button className="save-recipe-btn" onClick={handleSaveRecipe}>Save Recipe</button>
-          </div>
-        )}
-      </section>
+      <FridgeAI
+        ingredients={ingredients}
+        setIngredients={setIngredients}
+        getRecipe={getRecipe}
+        recipes={recipes}
+        handleSaveRecipe={handleSaveRecipe}
+        addIngredient={addIngredient}
+        favoriteIds={favoriteIds}
+        toggleFavorite={toggleFavorite}
+        handleRecipeClick={handleRecipeClick}
+      />
+      <Modal open={!!selectedRecipeDetail} onClose={() => setSelectedRecipeDetail(null)}>
+        <RecipeDetailSection
+          detail={selectedRecipeDetail}
+          onClose={() => setSelectedRecipeDetail(null)}
+          onToggleFavorite={selectedRecipeDetail ? () => toggleFavorite(selectedRecipeDetail.spoonacularId) : undefined}
+          isFavorite={selectedRecipeDetail ? favoriteIds.includes(selectedRecipeDetail.spoonacularId) : false}
+        />
+      </Modal>
     </main>
   );
 }

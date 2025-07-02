@@ -13,7 +13,7 @@ export async function getRecipeFromMistral(ingredientsArr) {
     const ingredientsString = ingredientsArr.join(", ")
     try {
         const response = await hf.chatCompletion({
-            model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            model: "HuggingFaceH4/zephyr-7b-beta",
             messages: [
                 { role: "system", content: SYSTEM_PROMPT },
                 { role: "user", content: `I have ${ingredientsString}. Please give me a recipe you'd recommend I make!` },
@@ -22,6 +22,19 @@ export async function getRecipeFromMistral(ingredientsArr) {
         })
         return response.choices[0].message.content
     } catch (err) {
-        console.error(err.message)
+        console.error("AI API error:", err.message)
+        
+        // check if the quota is exceeded
+        if (err.message.includes("403") || err.message.includes("Forbidden") || err.message.includes("Quota exceeded")) {
+            throw new Error("API quota exceeded. Please try again later or upgrade your plan.")
+        }
+        
+        // check if the model is unavailable
+        if (err.message.includes("404") || err.message.includes("Not Found")) {
+            throw new Error("AI model is currently unavailable. Please try again later.")
+        }
+        
+        // other error
+        throw new Error("Failed to generate recipe. Please try again later.")
     }
 }

@@ -26,7 +26,8 @@ namespace ChefBackend.Controllers
         {
             var existing = await _userService.GetByEmailAsync(request.Email);
             if (existing != null)
-                return BadRequest("Email already registered.");
+                // Return 409 Conflict if email already registered
+                return Conflict(new { message = "Email already registered. Please login." });
 
             var user = new User
             {
@@ -34,15 +35,19 @@ namespace ChefBackend.Controllers
                 PasswordHash = HashPassword(request.Password)
             };
             await _userService.CreateAsync(user);
-            return Ok();
+            return Ok(new { message = "Registration successful. Please login." });
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var user = await _userService.GetByEmailAsync(request.Email);
-            if (user == null || !VerifyPassword(request.Password, user.PasswordHash))
-                return Unauthorized("Invalid credentials.");
+            if (user == null)
+                // Return 404 Not Found if user does not exist
+                return NotFound(new { message = "User not found. Please register." });
+            if (!VerifyPassword(request.Password, user.PasswordHash))
+                // Return 401 Unauthorized if password is incorrect
+                return Unauthorized(new { message = "Invalid password. Please try again." });
 
             var token = GenerateJwtToken(user);
             return Ok(new { token });
@@ -58,7 +63,8 @@ namespace ChefBackend.Controllers
             }
             catch
             {
-                return Unauthorized("Invalid Google token.");
+                // Return 401 Unauthorized if Google token is invalid
+                return Unauthorized(new { message = "Invalid Google token." });
             }
 
             var user = await _userService.GetByGoogleIdAsync(payload.Subject);

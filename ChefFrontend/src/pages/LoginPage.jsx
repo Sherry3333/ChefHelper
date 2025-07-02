@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useNavigate } from 'react-router-dom';
-import { login as loginApi } from '../services/authService'; 
+import { login as loginApi, register as registerApi } from '../services/authService'; 
 
 export default function LoginPage() {
   const { login, register, googleLogin, error, loading, isLoggedIn } = useAuth();
@@ -15,16 +15,18 @@ export default function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setMsg("");
-    if (isLogin) {
-      const { token } = await loginApi(email, password); 
-      login(token); 
-      navigate('/');
-    } else {
-      const ok = await register(email, password);
-      if (ok) {
+    try {
+      if (isLogin) {
+        const { token } = await loginApi(email, password);
+        login(token);
+        navigate('/');
+      } else {
+        await registerApi(email, password);
         setMsg("Register Success, please login");
         setIsLogin(true);
       }
+    } catch (err) {
+      setMsg(err?.response?.data?.message || err.message || "An error occurred");
     }
   }
 

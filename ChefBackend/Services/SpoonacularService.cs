@@ -6,6 +6,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace ChefBackend.Services
 {
+    // Custom exception for Spoonacular quota/payment errors
+    public class SpoonacularQuotaException : Exception
+    {
+        public SpoonacularQuotaException(string message) : base(message) { }
+    }
+
     // DTO for Spoonacular recipe result (simplified)
     public class SpoonacularRecipeResult
     {
@@ -53,6 +59,23 @@ namespace ChefBackend.Services
             var ingredientsString = string.Join(",", ingredients);
             var url = $"https://api.spoonacular.com/recipes/findByIngredients?ingredients={ingredientsString}&number={count}&apiKey={_apiKey}";
             var response = await _httpClient.GetAsync(url);
+            if ((int)response.StatusCode == 402)
+            {
+                throw new SpoonacularQuotaException("Spoonacular API quota exceeded or payment required (402). Please check your API key or upgrade your plan.");
+            }
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<SpoonacularRecipeResult>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<SpoonacularRecipeResult>();
+        }
+
+        public async Task<List<SpoonacularRecipeResult>> FindRecipesByIngredientsAsync(string ingredientsString, int count)
+        {
+            var url = $"https://api.spoonacular.com/recipes/findByIngredients?ingredients={ingredientsString}&ranking=2&ignorePantry=true&number={count}&apiKey={_apiKey}";
+            var response = await _httpClient.GetAsync(url);
+            if ((int)response.StatusCode == 402)
+            {
+                throw new SpoonacularQuotaException("Spoonacular API quota exceeded or payment required (402). Please check your API key or upgrade your plan.");
+            }
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<List<SpoonacularRecipeResult>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<SpoonacularRecipeResult>();
@@ -63,6 +86,10 @@ namespace ChefBackend.Services
         {
             var url = $"https://api.spoonacular.com/recipes/{id}/information?apiKey={_apiKey}";
             var response = await _httpClient.GetAsync(url);
+            if ((int)response.StatusCode == 402)
+            {
+                throw new SpoonacularQuotaException("Spoonacular API quota exceeded or payment required (402). Please check your API key or upgrade your plan.");
+            }
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<SpoonacularRecipeDetail>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });

@@ -20,9 +20,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<SpoonacularService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<UserService>();
+builder.Services.AddScoped<FavoriteService>();
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -67,9 +67,7 @@ var jwtKey = Environment.GetEnvironmentVariable("JWT__KEY");
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT__ISSUER");
 var jwtAudience = Environment.GetEnvironmentVariable("JWT__AUDIENCE");
 
-Console.WriteLine($"JWT Issuer: {jwtIssuer}");
-Console.WriteLine($"JWT Audience: {jwtAudience}");
-Console.WriteLine($"JWT Key length: {jwtKey?.Length ?? 0}");
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -89,20 +87,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
     
-    // 添加事件处理来调试认证失败
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = context =>
-        {
-            Console.WriteLine("Token validated successfully");
-            return Task.CompletedTask;
-        }
-    };
+    
 });
 
 var app = builder.Build();

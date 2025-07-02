@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using ChefBackend.Models;
+using ChefBackend.Services;
 
 // Service for Recipe CRUD operations
 public class RecipeService
@@ -33,5 +34,29 @@ public class RecipeService
     {
         var filter = Builders<Recipe>.Filter.In(r => r.Id, ids);
         return await _recipeCollection.Find(filter).ToListAsync();
+    }
+
+    // Get a recipe by SpoonacularId
+    public async Task<Recipe?> GetBySpoonacularIdAsync(int spoonacularId)
+    {
+        return await _recipeCollection.Find(r => r.SpoonacularId == spoonacularId).FirstOrDefaultAsync();
+    }
+
+    // Create a recipe from SpoonacularRecipeDetail
+    public async Task<Recipe> CreateFromSpoonacularAsync(SpoonacularRecipeDetail detail)
+    {
+        var recipe = new Recipe
+        {
+            SpoonacularId = detail.Id,
+            Title = detail.Title,
+            Image = detail.Image,
+            Summary = "", // You can extend to fetch summary if needed
+            Instructions = detail.Instructions,
+            Ingredients = detail.ExtendedIngredients?.ConvertAll(ing => ing.Original) ?? new List<string>(),
+            ReadyInMinutes = 0, // You can extend to fetch this if needed
+            CreatedAt = DateTime.UtcNow
+        };
+        await _recipeCollection.InsertOneAsync(recipe);
+        return recipe;
     }
 } 
