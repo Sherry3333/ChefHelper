@@ -25,7 +25,7 @@ public class DbService
                 throw new InvalidOperationException("MONGO_DATABASE is not configured");
             }
             
-            Console.WriteLine($"Connecting to MongoDB: {dbName}");
+            Console.WriteLine($"Connect to MongoDB: {dbName}");
             var client = new MongoClient(connectStr);
             _database = client.GetDatabase(dbName);
             
