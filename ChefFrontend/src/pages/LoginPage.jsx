@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { login as loginApi, register as registerApi } from '../services/authService'; 
 
 export default function LoginPage() {
-  const { login, register, googleLogin, error, loading, isLoggedIn } = useAuth();
+  const { login, googleLogin, error, loading, isLoggedIn } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

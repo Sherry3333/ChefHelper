@@ -25,7 +25,21 @@ namespace ChefBackend.Services
 
         public async Task CreateAsync(User user)
         {
-            await _users.InsertOneAsync(user);
+            try
+            {
+                if (string.IsNullOrEmpty(user.Email))
+                {
+                    throw new ArgumentException("Email is required");
+                }
+                
+                await _users.InsertOneAsync(user);
+                Console.WriteLine($"User created in database: {user.Email}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating user: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<User> GetByIdAsync(string id)

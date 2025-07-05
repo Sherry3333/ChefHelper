@@ -8,12 +8,33 @@ public class DbService
 
     public DbService()
     {
-        // Load environment variables
-        Env.Load();
-        var connectStr = Env.GetString("MONGO_CONNECTION_STRING");
-        var dbName = Env.GetString("MONGO_DATABASE");
-        var client = new MongoClient(connectStr);
-        _database = client.GetDatabase(dbName);
+        try
+        {
+            // Load environment variables
+            Env.Load();
+            var connectStr = Env.GetString("MONGO_CONNECTION_STRING");
+            var dbName = Env.GetString("MONGO_DATABASE");
+            
+            if (string.IsNullOrEmpty(connectStr))
+            {
+                throw new InvalidOperationException("MONGO_CONNECTION_STRING is not configured");
+            }
+            
+            if (string.IsNullOrEmpty(dbName))
+            {
+                throw new InvalidOperationException("MONGO_DATABASE is not configured");
+            }
+            
+            Console.WriteLine($"Connecting to MongoDB: {dbName}");
+            var client = new MongoClient(connectStr);
+            _database = client.GetDatabase(dbName);
+            
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"MongoDB connection error: {ex.Message}");
+            throw;
+        }
     }
 
     // Get a MongoDB collection by type and name
