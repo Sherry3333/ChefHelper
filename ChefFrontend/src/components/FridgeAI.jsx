@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { fetchRecipeDetail } from "../services/recipesServices";
 import RecipeDetailSection from "./RecipeDetailSection";
 import IngredientsList from "./IngredientsList";
+import Modal from "./Modal";
 
 export default function FridgeAI({
   ingredients, getRecipe, recipes, handleSaveRecipe, addIngredient, favoriteIds = [], toggleFavorite = () => {}
@@ -74,6 +75,21 @@ export default function FridgeAI({
           </div>
         </div>
       )}
+      
+      {/* Recipe Detail Modal */}
+      <Modal
+        open={!!selectedRecipeDetail}
+        onClose={() => setSelectedRecipeDetail(null)}
+      >
+        {selectedRecipeDetail && (
+          <RecipeDetailSection
+            detail={selectedRecipeDetail}
+            onClose={() => setSelectedRecipeDetail(null)}
+                      onToggleFavorite={selectedRecipeDetail ? () => toggleFavorite(selectedRecipeDetail.spoonacularId) : undefined}
+          isFavorite={selectedRecipeDetail ? favoriteIds.includes(selectedRecipeDetail.spoonacularId) : false}
+          />
+        )}
+      </Modal>
       
     </section>
   );
