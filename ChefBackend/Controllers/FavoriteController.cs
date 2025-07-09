@@ -5,6 +5,7 @@ using ChefBackend.Services;
 using ChefBackend.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 
 [ApiController]
 [Route("favorites")]
@@ -12,14 +13,17 @@ public class FavoriteController : ControllerBase
 {
     private readonly FavoriteService _favoriteService;
     private readonly RecipeService _recipeService;
+    private readonly VoteService _voteService;
 
-    public FavoriteController(FavoriteService favoriteService, RecipeService recipeService)
+    // Only keep this constructor!
+    public FavoriteController(FavoriteService favoriteService, RecipeService recipeService, VoteService voteService)
     {
         _favoriteService = favoriteService;
         _recipeService = recipeService;
+        _voteService = voteService;
     }
 
-    // Get all favorited recipes for the current user
+    // Get all favorited recipes for the current user, with like count and voted status
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetFavorites()
@@ -31,7 +35,25 @@ public class FavoriteController : ControllerBase
         var favorites = await _favoriteService.GetFavoritesByUserIdAsync(userId);
         var recipeIds = favorites.ConvertAll(f => f.RecipeId);
         var recipes = await _recipeService.GetByIdsAsync(recipeIds);
-        return Ok(recipes);
+
+        // Convert to List<int> of SpoonacularId for vote info
+        var spoonacularIds = recipes.Select(r => r.SpoonacularId).ToList();
+        var voteCounts = await _voteService.GetVoteCountsAsync(spoonacularIds);
+        var userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, spoonacularIds);
+
+        var result = recipes.Select(r => new {
+            r.Id,
+            r.SpoonacularId,
+            r.Title,
+            r.Image,
+            r.Ingredients,
+            r.Instructions,
+            // Add other fields as needed
+            Likes = voteCounts.ContainsKey(r.SpoonacularId) ? voteCounts[r.SpoonacularId] : 0,
+            Voted = userVotedIds.Contains(r.SpoonacularId)
+        });
+
+        return Ok(result);
     }
 
     // Add a favorite (by spoonacularId)

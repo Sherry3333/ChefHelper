@@ -1,48 +1,26 @@
-import Slider from "react-slick";
+import React from 'react';
+import Slider from 'react-slick';
+import RecipeCard from './RecipeCard';
 
-export default function SeasonalCarousel({ recipes, activeCardId, setActiveCardId, handleRecipeClick, sliderSettings, favoriteIds = [], toggleFavorite = () => {} }) {
+export default function SeasonalCarousel({ recipes, activeCardId, setActiveCardId, handleRecipeClick, sliderSettings, favoriteIds, toggleFavorite }) {
+  if (!recipes || recipes.length === 0) return null;
   return (
-    <section className="seasonal-carousel-section">
+    <div className="seasonal-carousel">
       <Slider {...sliderSettings}>
-        {recipes.map(r => {
-          const isFavorite = favoriteIds.includes(r.spoonacularId);
-          return (
-            <div
-              key={r.spoonacularId}
-              className={`recipe-card${activeCardId === r.spoonacularId ? " active" : ""}`}
-              onClick={() => {
-                setActiveCardId(r.spoonacularId);
-                handleRecipeClick(r.spoonacularId);
+        {recipes.map(recipe => (
+          <div key={recipe.spoonacularId} className="seasonal-carousel-slide">
+            <RecipeCard
+              recipe={recipe}
+              onClick={id => {
+                setActiveCardId && setActiveCardId(id);
+                handleRecipeClick && handleRecipeClick(id);
               }}
-            >
-              <div className="image-wrapper">
-                {r.image && (
-                  <img
-                    src={r.image}
-                    alt={r.title}
-                    className="recipe-card-image"
-                    style={{ cursor: "pointer" }}
-                  />
-                )}
-              </div>
-              <div className="card-footer">
-                <span className="title">{r.title}</span>
-                <span
-                  className="heart-icon"
-                  style={{ color: isFavorite ? 'red' : '#ccc', cursor: 'pointer' }}
-                  onClick={e => {
-                    e.stopPropagation();
-                    toggleFavorite(r.spoonacularId);
-                  }}
-                  title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
-                >
-                  {isFavorite ? "❤️" : "🤍"}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+              isFavorite={favoriteIds && favoriteIds.includes(recipe.spoonacularId)}
+              onToggleFavorite={toggleFavorite}
+            />
+          </div>
+        ))}
       </Slider>
-    </section>
+    </div>
   );
 }

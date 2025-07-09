@@ -16,11 +16,13 @@ builder.Services.AddSingleton<DbService>();
 builder.Services.AddScoped<RecipeService>();
 builder.Services.AddScoped<SeasonalIngredientService>();
 builder.Services.AddScoped<SeasonalIngredientInitializer>();
+builder.Services.AddScoped<SeasonalRecipeCacheService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<SpoonacularService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddScoped<FavoriteService>();
+builder.Services.AddScoped<VoteService>();
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
@@ -109,6 +111,8 @@ using (var scope = app.Services.CreateScope())
     string jsonPath = Path.Combine(AppContext.BaseDirectory, "seasonal_ingredients.json");
     await initializer.InitializeAsync(jsonPath);
 }
+
+
 
 app.UseAuthentication();
 app.UseAuthorization();

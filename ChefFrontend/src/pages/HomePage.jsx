@@ -2,16 +2,23 @@ import React from "react";
 import SeasonalCarousel from "../components/SeasonalCarousel";
 import RecipeDetailSection from "../components/RecipeDetailSection";
 import Modal from "../components/Modal";
+import SearchBar from "../components/SearchBar";
+import SearchResults from "../components/SearchResults";
 import { fetchSeasonalRecipes, fetchRecipeDetail, fetchFavoriteRecipes, addFavorite, removeFavorite } from "../services/recipesServices";
 import { useAuth } from "../context/AuthContext";
+import { handleApiError } from "../utils/errorHandler";
 import { toast } from 'react-toastify';
 
 export default function HomePage() {
   const [seasonalRecipes, setSeasonalRecipes] = React.useState([]);
+  const [searchResults, setSearchResults] = React.useState([]);
+  const [searchQuery, setSearchQuery] = React.useState('');
   const [activeCardId, setActiveCardId] = React.useState(null);
   const [selectedRecipeDetail, setSelectedRecipeDetail] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [searchLoading, setSearchLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
+  const [searchError, setSearchError] = React.useState(null);
   const [favoriteIds, setFavoriteIds] = React.useState([]);
   const { isLoggedIn } = useAuth();
 
@@ -29,7 +36,8 @@ export default function HomePage() {
                 recipes = await fetchSeasonalRecipes(latitude, longitude, 9);
               } catch (err) {
                 console.log(err);
-                setError((err.response && err.response.data && err.response.data.error) || err.message || 'Failed to load data');
+                const errorMessage = handleApiError(err);
+                setError(errorMessage);
                 setLoading(false);
                 return;
               }
@@ -39,7 +47,8 @@ export default function HomePage() {
                 recipes = await fetchSeasonalRecipes(-36.8485, 174.7633, 9);
               } catch (err) {
                 console.log(err);
-                setError((err.response && err.response.data && err.response.data.error) || err.message || 'Failed to load data');
+                const errorMessage = handleApiError(err);
+                setError(errorMessage);
                 setLoading(false);
                 return;
               }
@@ -50,7 +59,8 @@ export default function HomePage() {
           try {
             recipes = await fetchSeasonalRecipes(-36.8485, 174.7633, 9);
           } catch (err) {
-            setError((err.response && err.response.data && err.response.data.error) || err.message || 'Failed to load data');
+            const errorMessage = handleApiError(err);
+            setError(errorMessage);
             setLoading(false);
             return;
           }
@@ -59,7 +69,8 @@ export default function HomePage() {
         const favs = await fetchFavoriteRecipes();
         setFavoriteIds(favs.map(r => r.spoonacularId));
       } catch (err) {
-        setError((err.response && err.response.data && err.response.data.error) || err.message || "Failed to load data");
+        const errorMessage = handleApiError(err);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -73,7 +84,8 @@ export default function HomePage() {
       const detail = await fetchRecipeDetail(id);
       setSelectedRecipeDetail(detail);
     } catch (err) {
-      setError((err.response && err.response.data && err.response.data.error) || err.message || 'Failed to fetch recipe detail');
+      const errorMessage = handleApiError(err);
+      setError(errorMessage);
     }
   }
 
@@ -89,6 +101,28 @@ export default function HomePage() {
       await addFavorite(spoonacularId);
       setFavoriteIds(ids => [...ids, spoonacularId]);
     }
+  };
+
+  // Search handlers
+  const handleSearchResults = (results) => {
+    setSearchResults(results);
+  };
+
+  const handleSearchLoading = (loading) => {
+    setSearchLoading(loading);
+  };
+
+  const handleSearchError = (error) => {
+    const errorMessage = handleApiError(error, 'search');
+    setSearchError(errorMessage);
+  };
+
+  const handleClearSearchError = () => {
+    setSearchError(null);
+  };
+
+  const handleSearchQuery = (query) => {
+    setSearchQuery(query);
   };
 
   // react-slick settings
@@ -120,6 +154,39 @@ export default function HomePage() {
 
   return (
     <main>
+      {/* Search Section */}
+      <section className="search-section" style={{ marginBottom: '30px' }}>
+        <SearchBar 
+          onSearchResults={handleSearchResults}
+          onLoading={handleSearchLoading}
+          onError={handleSearchError}
+          onSearchQuery={handleSearchQuery}
+          onClearError={handleClearSearchError}
+        />
+        {searchError && (
+          <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>
+            {searchError}
+          </p>
+        )}
+        {searchLoading && (
+          <p style={{ textAlign: 'center', marginTop: '10px' }}>
+            Searching recipes...
+          </p>
+        )}
+      </section>
+
+      {/* Search Results */}
+      {searchResults.length > 0 && (
+        <SearchResults
+          searchResults={searchResults}
+          onRecipeClick={handleRecipeClick}
+          favoriteIds={favoriteIds}
+          toggleFavorite={toggleFavorite}
+          searchQuery={searchQuery}
+        />
+      )}
+
+      {/* Seasonal Recipes Section */}
       <section className="seasonal-carousel-section">
         <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
           <h2 style={{ flex: 1 }}>Seasonal Recipes</h2>

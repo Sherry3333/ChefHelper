@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { fetchFavoriteRecipes, removeFavorite, fetchMyRecipeDetail } from "../services/recipesServices";
 import RecipeDetailSection from "../components/RecipeDetailSection";
 import Modal from "../components/Modal";
+import RecipeCard from "../components/RecipeCard";
 
 export default function MyRecipesPage() {
   const { isLoggedIn } = useAuth();
@@ -53,7 +54,7 @@ export default function MyRecipesPage() {
   if (!isLoggedIn) {
     return (
       <main>
-        <div style={{ textAlign: "center", marginTop: 60, color: "#888" }}>
+        <div className="not-logged-in-message">
           Please login to view your favorite recipes.
         </div>
       </main>
@@ -62,39 +63,20 @@ export default function MyRecipesPage() {
 
   return (
     <main>
-      <h2 style={{ textAlign: "center" }}>My Favorite Recipes</h2>
-      {loading && <div style={{ textAlign: "center", marginTop: 40 }}>Loading...</div>}
-      {error && <div style={{ color: "red", textAlign: "center" }}>{error}</div>}
+      <h2 className="my-recipes-title">My Favorite Recipes</h2>
+      {loading && <div className="my-recipes-loading">Loading...</div>}
+      {error && <div className="my-recipes-error">{error}</div>}
       {!loading && !error && (
         <div className="recipe-cards-container">
           <div className="recipe-cards-grid">
             {recipes.map((recipe) => (
-              <div
+              <RecipeCard
                 key={recipe.spoonacularId || recipe.id}
-                className="recipe-card"
+                recipe={recipe}
                 onClick={() => handleCardClick(recipe.id)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="image-wrapper">
-                  <img
-                    src={recipe.image}
-                    alt={recipe.title}
-                    className="recipe-card-image"
-                  />
-                </div>
-                <div className="card-footer">
-                  <span className="title">{recipe.title}</span>
-                  {/* Heart icon for unfavorite */}
-                  <span
-                    className="heart-icon"
-                    style={{ color: 'red', cursor: 'pointer' }}
-                    onClick={(e) => { e.stopPropagation(); handleUnfavorite(recipe.spoonacularId); }}
-                    title="Remove from Favorites"
-                  >
-                    ❤️
-                  </span>
-                </div>
-              </div>
+                isFavorite={true}
+                onToggleFavorite={() => handleUnfavorite(recipe.spoonacularId)}
+              />
             ))}
           </div>
         </div>

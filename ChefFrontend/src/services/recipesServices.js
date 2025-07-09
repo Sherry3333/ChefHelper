@@ -1,4 +1,4 @@
-import axios from './axiosInstance';
+import axiosInstance from './axiosInstance';
 
 // All API calls use relative paths for proxy-based development
 const API_URL = "/myrecipe"; 
@@ -11,7 +11,7 @@ function getAuthHeader() {
 
 export async function fetchRecipes() {
     try {
-        const response = await axios.get(API_URL + "/all");
+        const response = await axiosInstance.get(API_URL + "/all");
         return response.data; 
     } catch (error) {
         console.error("Failed to fetch recipes:", error);
@@ -21,7 +21,7 @@ export async function fetchRecipes() {
 
 export async function saveRecipe(name, ingredients, content) {
     try {
-        const response = await axios.post(API_URL + "/add", {
+        const response = await axiosInstance.post(API_URL + "/add", {
             name,
             ingredients,
             content
@@ -35,7 +35,7 @@ export async function saveRecipe(name, ingredients, content) {
 
 export async function deleteRecipe(id) {
     try {
-        await axios.delete(`${API_URL}/${id}`);
+        await axiosInstance.delete(`${API_URL}/${id}`);
         console.log(`Recipe with id ${id} deleted`);
     } catch (error) {
         console.error(`Error deleting recipe with id ${id}:`, error);
@@ -44,7 +44,7 @@ export async function deleteRecipe(id) {
 
 export async function updateRecipe(id, updatedRecipe) {
     try {
-        const response = await axios.put(`${API_URL}/${id}`, updatedRecipe);
+        const response = await axiosInstance.put(`${API_URL}/${id}`, updatedRecipe);
         console.log(`Recipe with id ${id} updated`, response.data);
     } catch (error) {
         console.error(`Error updating recipe with id ${id}:`, error);
@@ -54,7 +54,7 @@ export async function updateRecipe(id, updatedRecipe) {
 // Fetch seasonal recipes from backend
 export async function fetchSeasonalRecipes(latitude, longitude, count = 9) {
     try {
-        const response = await axios.post('/recipes/seasonal', {
+        const response = await axiosInstance.post('/recipes/seasonal', {
             latitude,
             longitude,
             count
@@ -62,31 +62,89 @@ export async function fetchSeasonalRecipes(latitude, longitude, count = 9) {
         return response.data;
     } catch (error) {
         console.error('Failed to fetch seasonal recipes:', error);
-        return [];
+        
+        // Handle specific error cases by status code
+        if (error.response) {
+            if (error.response.status === 402) {
+                throw new Error('API_QUOTA_EXCEEDED');
+            } else if (error.response.status >= 500) {
+                throw new Error('SERVER_ERROR');
+            }
+        }
+        
+        throw new Error('NETWORK_ERROR');
     }
 }
 
 export async function fetchRecipeDetail(id) {
     try {
-        const response = await axios.get(`/recipes/${id}`);
+        const response = await axiosInstance.get(`/recipes/${id}`);
         return response.data;
     } catch (error) {
         console.error('Failed to fetch recipe detail:', error);
-        return null;
+        
+        // Handle specific error cases by status code
+        if (error.response) {
+            if (error.response.status === 402) {
+                throw new Error('API_QUOTA_EXCEEDED');
+            } else if (error.response.status >= 500) {
+                throw new Error('SERVER_ERROR');
+            }
+        }
+        
+        throw new Error('NETWORK_ERROR');
     }
 }
 
 // Fetch recipes by ingredients from backend
 export async function fetchRecipesByIngredients(ingredients, count = 3) {
     try {
-        const response = await axios.post('/recipes/byIngredients', {
+        const response = await axiosInstance.post('/recipes/byIngredients', {
             ingredients: ingredients.join(','),
             count
         });
         return response.data;
     } catch (error) {
         console.error('Failed to fetch recipes by ingredients:', error);
-        return [];
+        
+        // Handle specific error cases by status code
+        if (error.response) {
+            if (error.response.status === 402) {
+                throw new Error('API_QUOTA_EXCEEDED');
+            } else if (error.response.status === 400) {
+                throw new Error('INVALID_INPUT');
+            } else if (error.response.status >= 500) {
+                throw new Error('SERVER_ERROR');
+            }
+        }
+        
+        throw new Error('NETWORK_ERROR');
+    }
+}
+
+// Search recipes by query from backend
+export async function searchRecipes(query, count = 10) {
+    try {
+        const response = await axiosInstance.post('/recipes/search', {
+            query,
+            count
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Failed to search recipes:', error);
+        
+        // Handle specific error cases by status code
+        if (error.response) {
+            if (error.response.status === 402) {
+                throw new Error('API_QUOTA_EXCEEDED');
+            } else if (error.response.status === 400) {
+                throw new Error('INVALID_INPUT');
+            } else if (error.response.status >= 500) {
+                throw new Error('SERVER_ERROR');
+            }
+        }
+        
+        throw new Error('NETWORK_ERROR');
     }
 }
 
@@ -95,7 +153,7 @@ export async function fetchRecipesByIngredients(ingredients, count = 3) {
 // Get all favorite recipes for current user (requires JWT)
 export async function fetchFavoriteRecipes() {
     try {
-        const response = await axios.get('/favorites', {
+        const response = await axiosInstance.get('/favorites', {
             headers: getAuthHeader()
         });
         return response.data;
@@ -108,7 +166,7 @@ export async function fetchFavoriteRecipes() {
 // Add a recipe to favorites (requires JWT)
 export async function addFavorite(spoonacularId) {
     try {
-        await axios.post(`/favorites/${spoonacularId}`, {}, {
+        await axiosInstance.post(`/favorites/${spoonacularId}`, {}, {
             headers: getAuthHeader()
         });
     } catch (error) {
@@ -120,7 +178,7 @@ export async function addFavorite(spoonacularId) {
 // Remove a recipe from favorites (requires JWT)
 export async function removeFavorite(spoonacularId) {
     try {
-        await axios.delete(`/favorites/${spoonacularId}`, {
+        await axiosInstance.delete(`/favorites/${spoonacularId}`, {
             headers: getAuthHeader()
         });
     } catch (error) {
@@ -130,6 +188,18 @@ export async function removeFavorite(spoonacularId) {
 }
 
 export async function fetchMyRecipeDetail(id) {
-    const res = await axios.get(`/myrecipe/${id}`);
+    const res = await axiosInstance.get(`/myrecipe/${id}`);
     return res.data;
+}
+
+export async function addVote(recipeId) {
+  await axiosInstance.post(`/votes/${recipeId}`, {}, {
+    headers: getAuthHeader()
+  });
+}
+
+export async function removeVote(recipeId) {
+  await axiosInstance.delete(`/votes/${recipeId}`, {
+    headers: getAuthHeader()
+  });
 }

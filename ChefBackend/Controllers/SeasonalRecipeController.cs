@@ -1,27 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using ChefBackend.Services;
+using ChefBackend.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using System.Security.Claims;
 
-// DTO for recipe list items (for cards)
-public class RecipeListItemDto
-{
-    public int SpoonacularId { get; set; }
-    public string Title { get; set; }
-    public string Image { get; set; }
-    public int Likes { get; set; }
-}
-
-// DTO for recipe detail
-public class RecipeDetailDto
-{
-    public int SpoonacularId { get; set; }
-    public string Title { get; set; }
-    public string Image { get; set; }
-    public List<string> Ingredients { get; set; }
-    public string Instructions { get; set; }
-    // Add more fields as needed
-}
 
 [ApiController]
 [Route("recipes/")]
@@ -30,12 +14,21 @@ public class SeasonalRecipeController : ControllerBase
     private readonly ILogger<SeasonalRecipeController> _logger;
     private readonly SeasonalIngredientService _ingredientService;
     private readonly SpoonacularService _spoonacularService;
+    private readonly SeasonalRecipeCacheService _cacheService;
+    private readonly VoteService _voteService;
 
-    public SeasonalRecipeController(ILogger<SeasonalRecipeController> logger, SeasonalIngredientService ingredientService, SpoonacularService spoonacularService)
+    public SeasonalRecipeController(
+        ILogger<SeasonalRecipeController> logger, 
+        SeasonalIngredientService ingredientService, 
+        SpoonacularService spoonacularService,
+        SeasonalRecipeCacheService cacheService,
+        VoteService voteService)
     {
         _logger = logger;
         _ingredientService = ingredientService;
         _spoonacularService = spoonacularService;
+        _cacheService = cacheService;
+        _voteService = voteService;
     }
 
     // Request model for recipe by location
@@ -47,7 +40,7 @@ public class SeasonalRecipeController : ControllerBase
     }
 
     /// <summary>
-    /// Get seasonal recipes by location (latitude, longitude)
+    /// Get seasonal recipes by location (latitude, longitude) with caching
     /// </summary>
     [HttpPost("seasonal")]
     public async Task<IActionResult> GetRecipesByLocation([FromBody] RecipeByLocationRequest request)
@@ -58,26 +51,53 @@ public class SeasonalRecipeController : ControllerBase
             double lon = request.Longitude ?? 0.0;
             var season = SeasonalConfig.GetCurrentSeason(lat, lon);
             var region = lat < 0 ? "South" : "North";
-            var ingredients = await _ingredientService.GetBySeasonAndRegionAsync(season, region);
-            var ingredientNames = ingredients.Select(i => i.Ingredient).ToList();
-            var random = new Random();
-            var selectedIngredients = ingredientNames.OrderBy(x => random.Next()).Take(3).ToList();
-            var allRecipes = new List<SpoonacularRecipeResult>();
-            foreach (var ingredient in selectedIngredients)
+
+            // try to get cached recipes
+            var cachedRecipes = _cacheService.GetSeasonalRecipes(season, region);
+            List<RecipeListItemDto> dtos;
+            if (cachedRecipes != null)
             {
-                var recipes = await _spoonacularService.FindRecipesByIngredientsAsync(new List<string> { ingredient }, 3);
-                if (recipes != null)
-                    allRecipes.AddRange(recipes);
+                dtos = cachedRecipes.Take(request.Count).ToList();
             }
-            var uniqueRecipes = allRecipes.GroupBy(r => r.Id).Select(g => g.First()).Take(request.Count).ToList();
-            // Map to RecipeListItemDto for consistent frontend usage
-            var dtos = uniqueRecipes.Select(r => new RecipeListItemDto
+            else
             {
-                SpoonacularId = r.Id,
-                Title = r.Title,
-                Image = r.Image,
-                Likes = r.Likes
-            }).ToList();
+                var ingredients = await _ingredientService.GetBySeasonAndRegionAsync(season, region);
+                var ingredientNames = ingredients.Select(i => i.Ingredient).ToList();
+                var random = new Random();
+                var selectedIngredients = ingredientNames.OrderBy(x => random.Next()).Take(3).ToList();
+                var allRecipes = new List<SpoonacularRecipeResult>();
+                foreach (var ingredient in selectedIngredients)
+                {
+                    var recipes = await _spoonacularService.FindRecipesByIngredientsAsync(new List<string> { ingredient }, 3);
+                    if (recipes != null)
+                        allRecipes.AddRange(recipes);
+                }
+                var uniqueRecipes = allRecipes.GroupBy(r => r.Id).Select(g => g.First()).Take(request.Count).ToList();
+                dtos = uniqueRecipes.Select(r => new RecipeListItemDto
+                {
+                    SpoonacularId = r.Id,
+                    Title = r.Title,
+                    Image = r.Image,
+                    Likes = 0, // will fill below
+                    Voted = false
+                }).ToList();
+                _cacheService.SetSeasonalRecipes(season, region, dtos);
+            }
+
+            // --- Add vote info ---
+            var recipeIds = dtos.Select(r => r.SpoonacularId).ToList();
+            var voteCounts = await _voteService.GetVoteCountsAsync(recipeIds);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<int> userVotedIds = new List<int>();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, recipeIds);
+            }
+            foreach (var dto in dtos)
+            {
+                dto.Likes = voteCounts.ContainsKey(dto.SpoonacularId) ? voteCounts[dto.SpoonacularId] : 0;
+                dto.Voted = !string.IsNullOrEmpty(userId) && userVotedIds.Contains(dto.SpoonacularId);
+            }
             return Ok(dtos);
         }
         catch (SpoonacularQuotaException ex)
@@ -86,6 +106,7 @@ public class SeasonalRecipeController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error getting seasonal recipes for location {Lat}, {Lon}", request.Latitude, request.Longitude);
             return StatusCode(500, new { error = ex.Message });
         }
     }
@@ -95,7 +116,18 @@ public class SeasonalRecipeController : ControllerBase
     {
         try
         {
+            // try to get cached recipe detail
+            var cachedDetail = _cacheService.GetRecipeDetail(id);
+            if (cachedDetail != null)
+            {
+                _logger.LogInformation("Returning cached recipe detail for {Id}", id);
+                return Ok(cachedDetail);
+            }
+
+            // cache miss, fetch from API
+            _logger.LogInformation("Cache miss for recipe detail {Id}, fetching from API", id);
             var detail = await _spoonacularService.GetRecipeDetailAsync(id);
+            
             // Map to RecipeDetailDto for consistent frontend usage
             var dto = new RecipeDetailDto
             {
@@ -105,6 +137,11 @@ public class SeasonalRecipeController : ControllerBase
                 Ingredients = detail.ExtendedIngredients?.Select(i => i.Original).ToList() ?? new List<string>(),
                 Instructions = detail.Instructions
             };
+
+            // save to cache
+            _cacheService.SetRecipeDetail(id, dto);
+            _logger.LogInformation("Cached recipe detail for {Id}", id);
+
             return Ok(dto);
         }
         catch (SpoonacularQuotaException ex)
@@ -124,6 +161,60 @@ public class SeasonalRecipeController : ControllerBase
         public int Count { get; set; } = 3;
     }
 
+    // Request model for recipe search
+    public class RecipeSearchRequest
+    {
+        public string Query { get; set; } = string.Empty;
+        public int Count { get; set; } = 10;
+    }
+
+    /// <summary>
+    /// Search recipes by query string
+    /// </summary>
+    [HttpPost("search")]
+    public async Task<IActionResult> SearchRecipes([FromBody] RecipeSearchRequest request)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(request.Query))
+            {
+                return BadRequest("Search query cannot be empty");
+            }
+            var recipes = await _spoonacularService.SearchRecipesAsync(request.Query, request.Count);
+            var dtos = recipes.Select(r => new RecipeListItemDto
+            {
+                SpoonacularId = r.Id,
+                Title = r.Title,
+                Image = r.Image,
+                Likes = 0, // will fill below
+                Voted = false
+            }).ToList();
+            var recipeIds = dtos.Select(r => r.SpoonacularId).ToList();
+            var voteCounts = await _voteService.GetVoteCountsAsync(recipeIds);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<int> userVotedIds = new List<int>();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, recipeIds);
+            }
+            foreach (var dto in dtos)
+            {
+                dto.Likes = voteCounts.ContainsKey(dto.SpoonacularId) ? voteCounts[dto.SpoonacularId] : 0;
+                dto.Voted = !string.IsNullOrEmpty(userId) && userVotedIds.Contains(dto.SpoonacularId);
+            }
+            return Ok(dtos);
+        }
+        catch (SpoonacularQuotaException ex)
+        {
+            return StatusCode(402, new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching recipes: {Query}", request.Query);
+            return StatusCode(500, new { error = "Failed to search recipes. Please try again later." });
+        }
+    }
+
     /// <summary>
     /// Get recipes by ingredients string
     /// </summary>
@@ -137,14 +228,27 @@ public class SeasonalRecipeController : ControllerBase
                 return BadRequest("Ingredients cannot be empty");
             }
             var recipes = await _spoonacularService.FindRecipesByIngredientsAsync(request.Ingredients, request.Count);
-            // Map to RecipeListItemDto for consistent frontend usage
             var dtos = recipes.Select(r => new RecipeListItemDto
             {
                 SpoonacularId = r.Id,
                 Title = r.Title,
                 Image = r.Image,
-                Likes = r.Likes
+                Likes = 0, // will fill below
+                Voted = false
             }).ToList();
+            var recipeIds = dtos.Select(r => r.SpoonacularId).ToList();
+            var voteCounts = await _voteService.GetVoteCountsAsync(recipeIds);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<int> userVotedIds = new List<int>();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, recipeIds);
+            }
+            foreach (var dto in dtos)
+            {
+                dto.Likes = voteCounts.ContainsKey(dto.SpoonacularId) ? voteCounts[dto.SpoonacularId] : 0;
+                dto.Voted = !string.IsNullOrEmpty(userId) && userVotedIds.Contains(dto.SpoonacularId);
+            }
             return Ok(dtos);
         }
         catch (SpoonacularQuotaException ex)
