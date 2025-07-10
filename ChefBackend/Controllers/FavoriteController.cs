@@ -15,7 +15,6 @@ public class FavoriteController : ControllerBase
     private readonly RecipeService _recipeService;
     private readonly VoteService _voteService;
 
-    // Only keep this constructor!
     public FavoriteController(FavoriteService favoriteService, RecipeService recipeService, VoteService voteService)
     {
         _favoriteService = favoriteService;
@@ -29,17 +28,15 @@ public class FavoriteController : ControllerBase
     public async Task<IActionResult> GetFavorites()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        // If userId is missing from token, return clear error
         if (string.IsNullOrEmpty(userId))
             return BadRequest("User ID not found in token. Please re-login or contact support.");
         var favorites = await _favoriteService.GetFavoritesByUserIdAsync(userId);
         var recipeIds = favorites.ConvertAll(f => f.RecipeId);
         var recipes = await _recipeService.GetByIdsAsync(recipeIds);
 
-        // Convert to List<int> of SpoonacularId for vote info
-        var spoonacularIds = recipes.Select(r => r.SpoonacularId).ToList();
-        var voteCounts = await _voteService.GetVoteCountsAsync(spoonacularIds);
-        var userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, spoonacularIds);
+        // Use recipeIds for vote info
+        var voteCounts = await _voteService.GetVoteCountsAsync(recipeIds);
+        var userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, recipeIds);
 
         var result = recipes.Select(r => new {
             r.Id,
@@ -48,41 +45,38 @@ public class FavoriteController : ControllerBase
             r.Image,
             r.Ingredients,
             r.Instructions,
-            // Add other fields as needed
-            Likes = voteCounts.ContainsKey(r.SpoonacularId) ? voteCounts[r.SpoonacularId] : 0,
-            Voted = userVotedIds.Contains(r.SpoonacularId)
+            Likes = voteCounts.ContainsKey(r.Id) ? voteCounts[r.Id] : 0,
+            Voted = userVotedIds.Contains(r.Id)
         });
 
         return Ok(result);
     }
 
-    // Add a favorite (by spoonacularId)
+    // Add a favorite
     [Authorize]
-    [HttpPost("{spoonacularId}")]
-    public async Task<IActionResult> AddFavorite(int spoonacularId)
+    [HttpPost]
+    public async Task<IActionResult> AddFavorite([FromBody] FavoriteRequest request)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        // If userId is missing from token, return clear error
         if (string.IsNullOrEmpty(userId))
             return BadRequest("User ID not found in token. Please re-login or contact support.");
-        var result = await _favoriteService.AddFavoriteAsync(userId, spoonacularId);
+        var result = await _favoriteService.AddFavoriteAsync(userId, request);
         if (!result)
-            return Conflict("Already favorited");
+            return Conflict("Already favorited or recipe not found.");
         return Ok();
     }
 
-    // Remove a favorite (by spoonacularId)
+    // Remove a favorite
     [Authorize]
-    [HttpDelete("{spoonacularId}")]
-    public async Task<IActionResult> RemoveFavorite(int spoonacularId)
+    [HttpDelete]
+    public async Task<IActionResult> RemoveFavorite([FromBody] FavoriteRequest request)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        // If userId is missing from token, return clear error
         if (string.IsNullOrEmpty(userId))
             return BadRequest("User ID not found in token. Please re-login or contact support.");
-        var result = await _favoriteService.RemoveFavoriteAsync(userId, spoonacularId);
-        if (!result)
-            return NotFound();
+        
+        // Always return 200 OK, even if not found (idempotent operation)
+        await _favoriteService.RemoveFavoriteAsync(userId, request);
         return Ok();
     }
 } 

@@ -1,13 +1,16 @@
 import React from 'react';
 import RecipeCard from './RecipeCard';
+import { useFavorites } from '../context/FavoriteContext';
 
 export default function SearchResults({ 
   searchResults, 
   onRecipeClick, 
-  favoriteIds, 
   toggleFavorite,
-  searchQuery 
+  searchQuery,
+  onVoteUpdate
 }) {
+  const { isFavorite } = useFavorites();
+
   if (!searchResults || searchResults.length === 0) {
     return null;
   }
@@ -22,11 +25,12 @@ export default function SearchResults({
       <div className="search-results-grid">
         {searchResults.map((recipe) => (
           <RecipeCard
-            key={recipe.spoonacularId}
+            key={recipe.spoonacularId || recipe.id}
             recipe={recipe}
             onClick={onRecipeClick}
-            isFavorite={favoriteIds && favoriteIds.includes(recipe.spoonacularId)}
+            isFavorite={isFavorite(recipe)}
             onToggleFavorite={toggleFavorite}
+            onVoteUpdate={onVoteUpdate}
           />
         ))}
       </div>

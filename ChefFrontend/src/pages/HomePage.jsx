@@ -4,10 +4,13 @@ import RecipeDetailSection from "../components/RecipeDetailSection";
 import Modal from "../components/Modal";
 import SearchBar from "../components/SearchBar";
 import SearchResults from "../components/SearchResults";
-import { fetchSeasonalRecipes, fetchRecipeDetail, fetchFavoriteRecipes, addFavorite, removeFavorite } from "../services/recipesServices";
+import RecipeCard from "../components/RecipeCard";
+import { fetchSeasonalRecipes, fetchRecipeDetail, toggleFavorite, fetchAllUserCreatedRecipes, normalizeRecipeFields } from "../services/recipesServices";
 import { useAuth } from "../context/AuthContext";
+import { useFavorites } from "../context/FavoriteContext";
 import { handleApiError } from "../utils/errorHandler";
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 export default function HomePage() {
   const [seasonalRecipes, setSeasonalRecipes] = React.useState([]);
@@ -19,8 +22,10 @@ export default function HomePage() {
   const [searchLoading, setSearchLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [searchError, setSearchError] = React.useState(null);
-  const [favoriteIds, setFavoriteIds] = React.useState([]);
+  const [userCreatedRecipes, setUserCreatedRecipes] = React.useState([]);
   const { isLoggedIn } = useAuth();
+  const { isFavorite, updateFavoriteState, refreshFavorites } = useFavorites();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     async function fetchData() {
@@ -65,9 +70,11 @@ export default function HomePage() {
             return;
           }
         }
-        setSeasonalRecipes(recipes);
-        const favs = await fetchFavoriteRecipes();
-        setFavoriteIds(favs.map(r => r.spoonacularId));
+        setSeasonalRecipes(recipes.map(normalizeRecipeFields));
+        
+        // get all user created recipes
+        const userCreated = await fetchAllUserCreatedRecipes();
+        setUserCreatedRecipes(userCreated.map(normalizeRecipeFields));
       } catch (err) {
         const errorMessage = handleApiError(err);
         setError(errorMessage);
@@ -76,7 +83,7 @@ export default function HomePage() {
       }
     }
     fetchData();
-  }, []);
+  }, [isLoggedIn]);
 
   async function handleRecipeClick(id) {
     setActiveCardId(id);
@@ -89,23 +96,60 @@ export default function HomePage() {
     }
   }
 
-  const toggleFavorite = async (spoonacularId) => {
+  const handleToggleFavorite = async (recipe) => {
     if (!isLoggedIn) {
       toast.info("Please login to add favorites.");
       return;
     }
-    if (favoriteIds.includes(spoonacularId)) {
-      await removeFavorite(spoonacularId);
-      setFavoriteIds(ids => ids.filter(id => id !== spoonacularId));
-    } else {
-      await addFavorite(spoonacularId);
-      setFavoriteIds(ids => [...ids, spoonacularId]);
+    
+    const currentFavoriteState = isFavorite(recipe);
+    console.log('HomePage: handleToggleFavorite called:', { recipe, currentFavoriteState });
+    
+    try {
+      await toggleFavorite(recipe, currentFavoriteState);
+      console.log('HomePage: toggleFavorite API call successful, refreshing favorites');
+      // Refresh the global favorite list to ensure consistency across all pages
+      refreshFavorites();
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("Failed to update favorite");
+    }
+  };
+
+  // Refresh seasonal recipes after vote
+  const handleSeasonalVoteUpdate = async () => {
+    try {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          const recipes = await fetchSeasonalRecipes(latitude, longitude, 9);
+          setSeasonalRecipes(recipes.map(normalizeRecipeFields));
+        }, async () => {
+          const recipes = await fetchSeasonalRecipes(-36.8485, 174.7633, 9);
+          setSeasonalRecipes(recipes.map(normalizeRecipeFields));
+        });
+      } else {
+        const recipes = await fetchSeasonalRecipes(-36.8485, 174.7633, 9);
+        setSeasonalRecipes(recipes.map(normalizeRecipeFields));
+      }
+    } catch (err) {
+      console.error('Failed to refresh seasonal recipes:', err);
+    }
+  };
+
+  // Refresh user created recipes after vote
+  const handleUserCreatedVoteUpdate = async () => {
+    try {
+      const userCreated = await fetchAllUserCreatedRecipes();
+      setUserCreatedRecipes(userCreated.map(normalizeRecipeFields));
+    } catch (err) {
+      console.error('Failed to refresh user created recipes:', err);
     }
   };
 
   // Search handlers
   const handleSearchResults = (results) => {
-    setSearchResults(results);
+    setSearchResults(results.map(normalizeRecipeFields));
   };
 
   const handleSearchLoading = (loading) => {
@@ -155,60 +199,100 @@ export default function HomePage() {
   return (
     <main>
       {/* Search Section */}
-      <section className="search-section" style={{ marginBottom: '30px' }}>
+      <div className="search-toolbar">
         <SearchBar 
+          className="search-bar-inline"
           onSearchResults={handleSearchResults}
           onLoading={handleSearchLoading}
           onError={handleSearchError}
           onSearchQuery={handleSearchQuery}
           onClearError={handleClearSearchError}
         />
-        {searchError && (
-          <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>
-            {searchError}
-          </p>
-        )}
-        {searchLoading && (
-          <p style={{ textAlign: 'center', marginTop: '10px' }}>
-            Searching recipes...
-          </p>
-        )}
-      </section>
+        <button
+          className="create-recipe-btn-wide"
+          onClick={() => navigate('/create-recipe')}
+        >
+          + Create Your Own Recipe
+        </button>
+      </div>
+      <div className="search-divider"></div>
 
-      {/* Search Results */}
+      {/* Error Display */}
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading seasonal recipes...</p>
+        </div>
+      )}
+
+      {/* Seasonal Recipes Section */}
+      {!loading && !error && seasonalRecipes.length > 0 && (
+        <section className="seasonal-section">
+          <h2>Seasonal Recipes</h2>
+          <SeasonalCarousel
+            recipes={seasonalRecipes}
+            activeCardId={activeCardId}
+            setActiveCardId={setActiveCardId}
+            handleRecipeClick={handleRecipeClick}
+            sliderSettings={settings}
+            toggleFavorite={handleToggleFavorite}
+            onVoteUpdate={handleSeasonalVoteUpdate}
+          />
+        </section>
+      )}
+
+      {/* User Created Recipes Section */}
+      {!loading && !error && userCreatedRecipes.length > 0 && (
+        <section className="user-created-section">
+          <h2>User Creations</h2>
+          <div className="recipe-cards-container">
+            <div className="recipe-cards-grid">
+              {userCreatedRecipes.map((recipe) => (
+                <RecipeCard
+                  key={recipe.spoonacularId || recipe.id}
+                  recipe={recipe}
+                  onClick={handleRecipeClick}
+                  isFavorite={isFavorite(recipe)}
+                  onToggleFavorite={handleToggleFavorite}
+                  onVoteUpdate={handleUserCreatedVoteUpdate}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Search Results Section */}
       {searchResults.length > 0 && (
         <SearchResults
           searchResults={searchResults}
           onRecipeClick={handleRecipeClick}
-          favoriteIds={favoriteIds}
-          toggleFavorite={toggleFavorite}
+          toggleFavorite={handleToggleFavorite}
           searchQuery={searchQuery}
+          onVoteUpdate={() => {
+            // Refresh search results after vote
+            if (searchQuery) {
+              // Re-trigger search to get updated vote counts
+              // This would need to be implemented in SearchBar component
+            }
+          }}
         />
       )}
 
-      {/* Seasonal Recipes Section */}
-      <section className="seasonal-carousel-section">
-        <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-          <h2 style={{ flex: 1 }}>Seasonal Recipes</h2>
-        </div>
-        {loading && <p>Loading seasonal recipes...</p>}
-        {error && <p style={{color: 'red', fontWeight: 'bold'}}>{error}</p>}
-        <SeasonalCarousel
-          recipes={seasonalRecipes}
-          activeCardId={activeCardId}
-          setActiveCardId={setActiveCardId}
-          handleRecipeClick={handleRecipeClick}
-          sliderSettings={settings}
-          favoriteIds={favoriteIds}
-          toggleFavorite={toggleFavorite}
-        />
-      </section>
+      {/* Recipe Detail Modal */}
       <Modal open={!!selectedRecipeDetail} onClose={() => setSelectedRecipeDetail(null)}>
         <RecipeDetailSection
           detail={selectedRecipeDetail}
           onClose={() => setSelectedRecipeDetail(null)}
-          onToggleFavorite={selectedRecipeDetail ? () => toggleFavorite(selectedRecipeDetail.spoonacularId) : undefined}
-          isFavorite={selectedRecipeDetail ? favoriteIds.includes(selectedRecipeDetail.spoonacularId) : false}
+          onToggleFavorite={selectedRecipeDetail ? () => handleToggleFavorite(selectedRecipeDetail) : undefined}
+          isFavorite={selectedRecipeDetail ? isFavorite(selectedRecipeDetail) : false}
         />
       </Modal>
     </main>

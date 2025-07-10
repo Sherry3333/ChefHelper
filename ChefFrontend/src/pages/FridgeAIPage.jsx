@@ -1,8 +1,9 @@
 import React from "react";
 import FridgeAI from "../components/FridgeAI";
 import SearchResults from "../components/SearchResults";
-import { fetchRecipeDetail, fetchFavoriteRecipes, addFavorite, removeFavorite, fetchRecipesByIngredients } from "../services/recipesServices";
+import { fetchRecipeDetail, toggleFavorite, fetchRecipesByIngredients, normalizeRecipeFields } from "../services/recipesServices";
 import { useAuth } from "../context/AuthContext";
+import { useFavorites } from "../context/FavoriteContext";
 import { handleApiError } from "../utils/errorHandler";
 import { toast } from 'react-toastify';
 import Modal from "../components/Modal";
@@ -14,8 +15,8 @@ export default function FridgeAIPage() {
   const [aiResults, setAiResults] = React.useState([]);
   const [activeCardId, setActiveCardId] = React.useState(null);
   const [selectedRecipeDetail, setSelectedRecipeDetail] = React.useState(null);
-  const [favoriteIds, setFavoriteIds] = React.useState([]);
   const { isLoggedIn } = useAuth();
+  const { isFavorite, updateFavoriteState, refreshFavorites } = useFavorites();
   const [error, setError] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
 
@@ -25,7 +26,8 @@ export default function FridgeAIPage() {
   const [aiError, setAiError] = React.useState("");
 
   React.useEffect(() => {
-    fetchFavoriteRecipes().then(favs => setFavoriteIds(favs.map(r => r.spoonacularId)));
+    // The original code had fetchFavoriteRecipes here, but it's no longer needed
+    // as the favorite state is managed globally.
   }, []);
 
   const handleAddIngredient = (ingredient) => {
@@ -57,7 +59,7 @@ export default function FridgeAIPage() {
     try {
       // Fetch recipes from backend
       const recipes = await fetchRecipesByIngredients(ingredients, 8);
-      setAiResults(recipes);
+      setAiResults(recipes.map(normalizeRecipeFields));
     } catch (err) {
       const errorMessage = handleApiError(err, 'ingredients');
       setError(errorMessage);
@@ -78,17 +80,33 @@ export default function FridgeAIPage() {
     }
   }
 
-  const toggleFavorite = async (spoonacularId) => {
+  const handleToggleFavorite = async (recipe) => {
     if (!isLoggedIn) {
       toast.info("Please login to add favorites.");
       return;
     }
-    if (favoriteIds.includes(spoonacularId)) {
-      await removeFavorite(spoonacularId);
-      setFavoriteIds(ids => ids.filter(id => id !== spoonacularId));
-    } else {
-      await addFavorite(spoonacularId);
-      setFavoriteIds(ids => [...ids, spoonacularId]);
+    
+    const currentFavoriteState = isFavorite(recipe);
+    
+    try {
+      await toggleFavorite(recipe, currentFavoriteState);
+      // Refresh the global favorite list to ensure consistency across all pages
+      refreshFavorites();
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("Failed to update favorite");
+    }
+  };
+
+  // Refresh AI results after vote
+  const handleVoteUpdate = async () => {
+    if (ingredients.length > 0) {
+      try {
+        const recipes = await fetchRecipesByIngredients(ingredients, 8);
+        setAiResults(recipes.map(normalizeRecipeFields));
+      } catch (err) {
+        console.error('Failed to refresh AI results:', err);
+      }
     }
   };
 
@@ -117,17 +135,17 @@ export default function FridgeAIPage() {
         <SearchResults
           searchResults={aiResults}
           onRecipeClick={handleRecipeClick}
-          favoriteIds={favoriteIds}
-          toggleFavorite={toggleFavorite}
+          toggleFavorite={handleToggleFavorite}
           searchQuery={"FridgeAI"}
+          onVoteUpdate={handleVoteUpdate}
         />
       </section>
       <Modal open={!!selectedRecipeDetail} onClose={() => setSelectedRecipeDetail(null)}>
         <RecipeDetailSection
           detail={selectedRecipeDetail}
           onClose={() => setSelectedRecipeDetail(null)}
-          onToggleFavorite={selectedRecipeDetail ? () => toggleFavorite(selectedRecipeDetail.spoonacularId) : undefined}
-          isFavorite={selectedRecipeDetail ? favoriteIds.includes(selectedRecipeDetail.spoonacularId) : false}
+          onToggleFavorite={selectedRecipeDetail ? () => handleToggleFavorite(selectedRecipeDetail) : undefined}
+          isFavorite={selectedRecipeDetail ? isFavorite(selectedRecipeDetail) : false}
         />
       </Modal>
     </main>

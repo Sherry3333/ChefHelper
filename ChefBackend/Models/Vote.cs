@@ -13,6 +13,6 @@ namespace ChefBackend.Models
         public string UserId { get; set; }
 
         [BsonElement("RecipeId")]
-        public int RecipeId { get; set; }
+        public string RecipeId { get; set; }
     }
 } 

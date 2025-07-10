@@ -19,6 +19,22 @@ namespace ChefBackend.Services
             _spoonacularService = spoonacularService;
         }
 
+        // Helper to resolve the correct recipeId
+        public async Task<string> ResolveRecipeIdAsync(FavoriteRequest request)
+        {
+            if (!string.IsNullOrEmpty(request.RecipeId))
+            {
+                return request.RecipeId;
+            }
+            if (request.SpoonacularId.HasValue && request.SpoonacularId.Value > 0)
+            {
+                var localRecipe = await _recipeService.GetBySpoonacularIdAsync(request.SpoonacularId.Value);
+                if (localRecipe != null)
+                    return localRecipe.Id;
+            }
+            throw new Exception("RecipeId or valid SpoonacularId required.");
+        }
+
         // Get all favorites for a user
         public async Task<List<Favorite>> GetFavoritesByUserIdAsync(string userId)
         {
@@ -26,26 +42,38 @@ namespace ChefBackend.Services
         }
 
         // Add a favorite (if recipe not exists, fetch and save)
-        public async Task<bool> AddFavoriteAsync(string userId, int spoonacularId)
+        public async Task<bool> AddFavoriteAsync(string userId, FavoriteRequest request)
         {
-            // Check if recipe exists
-            var recipe = await _recipeService.GetBySpoonacularIdAsync(spoonacularId);
-            if (recipe == null)
+            string recipeId;
+            try
             {
-                // Fetch from Spoonacular and save
-                var detail = await _spoonacularService.GetRecipeDetailAsync(spoonacularId);
-                recipe = await _recipeService.CreateFromSpoonacularAsync(detail);
+                recipeId = await ResolveRecipeIdAsync(request);
+            }
+            catch
+            {
+                // If not found and spoonacularId > 0, try to fetch and insert
+                if (request.SpoonacularId.HasValue && request.SpoonacularId.Value > 0)
+                {
+                    var detail = await _spoonacularService.GetRecipeDetailAsync(request.SpoonacularId.Value);
+                    if (detail == null) return false;
+                    var newRecipe = await _recipeService.CreateFromSpoonacularAsync(detail);
+                    recipeId = newRecipe.Id;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             // Check if favorite already exists
-            var exists = await _favoriteCollection.Find(f => f.UserId == userId && f.RecipeId == recipe.Id).AnyAsync();
+            var exists = await _favoriteCollection.Find(f => f.UserId == userId && f.RecipeId == recipeId).AnyAsync();
             if (exists) return false;
 
             // Add favorite
             var favorite = new Favorite
             {
                 UserId = userId,
-                RecipeId = recipe.Id,
+                RecipeId = recipeId,
                 CreatedAt = DateTime.UtcNow
             };
             await _favoriteCollection.InsertOneAsync(favorite);
@@ -53,11 +81,19 @@ namespace ChefBackend.Services
         }
 
         // Remove a favorite
-        public async Task<bool> RemoveFavoriteAsync(string userId, int spoonacularId)
+        public async Task<bool> RemoveFavoriteAsync(string userId, FavoriteRequest request)
         {
-            var recipe = await _recipeService.GetBySpoonacularIdAsync(spoonacularId);
-            if (recipe == null) return false;
-            var result = await _favoriteCollection.DeleteOneAsync(f => f.UserId == userId && f.RecipeId == recipe.Id);
+            string recipeId;
+            try
+            {
+                recipeId = await ResolveRecipeIdAsync(request);
+            }
+            catch
+            {
+                // If the recipe does not exist locally, treat as not favorited (already removed)
+                return true;
+            }
+            var result = await _favoriteCollection.DeleteOneAsync(f => f.UserId == userId && f.RecipeId == recipeId);
             return result.DeletedCount > 0;
         }
     }

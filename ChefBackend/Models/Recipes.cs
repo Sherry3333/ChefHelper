@@ -1,10 +1,13 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-public class Recipe{
+namespace ChefBackend.Models
+{
+    public class Recipe
+    {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
+    public string? Id { get; set; } // Database generated
 
     [BsonElement("spoonacularId")]
     public int SpoonacularId { get; set; }
@@ -16,7 +19,7 @@ public class Recipe{
     public string Image { get; set; }
 
     [BsonElement("summary")]
-    public string Summary { get; set; }
+    public string? Summary { get; set; } // Can be null
 
     [BsonElement("instructions")]
     public string Instructions { get; set; }
@@ -29,4 +32,15 @@ public class Recipe{
 
     [BsonElement("createdAt")]
     public DateTime CreatedAt { get; set; }
+
+    [BsonElement("createdBy")]
+    public string? CreatedBy { get; set; } // Nullable, set in controller for add
+
+    // Vote information (not stored in database, computed at runtime)
+    [BsonIgnore]
+    public int Likes { get; set; } = 0;
+
+    [BsonIgnore]
+    public bool Voted { get; set; } = false;
+    }
 }

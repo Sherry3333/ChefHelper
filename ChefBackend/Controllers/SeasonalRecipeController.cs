@@ -16,19 +16,22 @@ public class SeasonalRecipeController : ControllerBase
     private readonly SpoonacularService _spoonacularService;
     private readonly SeasonalRecipeCacheService _cacheService;
     private readonly VoteService _voteService;
+    private readonly RecipeService _recipeService;
 
     public SeasonalRecipeController(
         ILogger<SeasonalRecipeController> logger, 
         SeasonalIngredientService ingredientService, 
         SpoonacularService spoonacularService,
         SeasonalRecipeCacheService cacheService,
-        VoteService voteService)
+        VoteService voteService,
+        RecipeService recipeService)
     {
         _logger = logger;
         _ingredientService = ingredientService;
         _spoonacularService = spoonacularService;
         _cacheService = cacheService;
         _voteService = voteService;
+        _recipeService = recipeService;
     }
 
     // Request model for recipe by location
@@ -85,18 +88,25 @@ public class SeasonalRecipeController : ControllerBase
             }
 
             // --- Add vote info ---
-            var recipeIds = dtos.Select(r => r.SpoonacularId).ToList();
-            var voteCounts = await _voteService.GetVoteCountsAsync(recipeIds);
+            // Map SpoonacularId to local recipe id if exists
+            var spoonacularIds = dtos.Select(r => r.SpoonacularId).ToList();
+            var localRecipes = await _recipeService.GetBySpoonacularIdsAsync(spoonacularIds);
+            var spoonacularIdToLocalId = localRecipes.ToDictionary(r => r.SpoonacularId, r => r.Id);
+            var localRecipeIds = spoonacularIdToLocalId.Values.ToList();
+
+            // Get vote counts and user voted status by local recipe id
+            var voteCounts = await _voteService.GetVoteCountsAsync(localRecipeIds);
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<int> userVotedIds = new List<int>();
+            List<string> userVotedIds = new List<string>();
             if (!string.IsNullOrEmpty(userId))
             {
-                userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, recipeIds);
+                userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, localRecipeIds);
             }
             foreach (var dto in dtos)
             {
-                dto.Likes = voteCounts.ContainsKey(dto.SpoonacularId) ? voteCounts[dto.SpoonacularId] : 0;
-                dto.Voted = !string.IsNullOrEmpty(userId) && userVotedIds.Contains(dto.SpoonacularId);
+                string localId = spoonacularIdToLocalId.ContainsKey(dto.SpoonacularId) ? spoonacularIdToLocalId[dto.SpoonacularId] : null;
+                dto.Likes = (localId != null && voteCounts.ContainsKey(localId)) ? voteCounts[localId] : 0;
+                dto.Voted = !string.IsNullOrEmpty(userId) && (localId != null && userVotedIds.Contains(localId));
             }
             return Ok(dtos);
         }
@@ -189,18 +199,26 @@ public class SeasonalRecipeController : ControllerBase
                 Likes = 0, // will fill below
                 Voted = false
             }).ToList();
-            var recipeIds = dtos.Select(r => r.SpoonacularId).ToList();
-            var voteCounts = await _voteService.GetVoteCountsAsync(recipeIds);
+            // --- Add vote info ---
+            // Map SpoonacularId to local recipe id if exists
+            var spoonacularIds = dtos.Select(r => r.SpoonacularId).ToList();
+            var localRecipes = await _recipeService.GetBySpoonacularIdsAsync(spoonacularIds);
+            var spoonacularIdToLocalId = localRecipes.ToDictionary(r => r.SpoonacularId, r => r.Id);
+            var localRecipeIds = spoonacularIdToLocalId.Values.ToList();
+
+            // Get vote counts and user voted status by local recipe id
+            var voteCounts = await _voteService.GetVoteCountsAsync(localRecipeIds);
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<int> userVotedIds = new List<int>();
+            List<string> userVotedIds = new List<string>();
             if (!string.IsNullOrEmpty(userId))
             {
-                userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, recipeIds);
+                userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, localRecipeIds);
             }
             foreach (var dto in dtos)
             {
-                dto.Likes = voteCounts.ContainsKey(dto.SpoonacularId) ? voteCounts[dto.SpoonacularId] : 0;
-                dto.Voted = !string.IsNullOrEmpty(userId) && userVotedIds.Contains(dto.SpoonacularId);
+                string localId = spoonacularIdToLocalId.ContainsKey(dto.SpoonacularId) ? spoonacularIdToLocalId[dto.SpoonacularId] : null;
+                dto.Likes = (localId != null && voteCounts.ContainsKey(localId)) ? voteCounts[localId] : 0;
+                dto.Voted = !string.IsNullOrEmpty(userId) && (localId != null && userVotedIds.Contains(localId));
             }
             return Ok(dtos);
         }
@@ -236,18 +254,26 @@ public class SeasonalRecipeController : ControllerBase
                 Likes = 0, // will fill below
                 Voted = false
             }).ToList();
-            var recipeIds = dtos.Select(r => r.SpoonacularId).ToList();
-            var voteCounts = await _voteService.GetVoteCountsAsync(recipeIds);
+            // --- Add vote info ---
+            // Map SpoonacularId to local recipe id if exists
+            var spoonacularIds = dtos.Select(r => r.SpoonacularId).ToList();
+            var localRecipes = await _recipeService.GetBySpoonacularIdsAsync(spoonacularIds);
+            var spoonacularIdToLocalId = localRecipes.ToDictionary(r => r.SpoonacularId, r => r.Id);
+            var localRecipeIds = spoonacularIdToLocalId.Values.ToList();
+
+            // Get vote counts and user voted status by local recipe id
+            var voteCounts = await _voteService.GetVoteCountsAsync(localRecipeIds);
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<int> userVotedIds = new List<int>();
+            List<string> userVotedIds = new List<string>();
             if (!string.IsNullOrEmpty(userId))
             {
-                userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, recipeIds);
+                userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, localRecipeIds);
             }
             foreach (var dto in dtos)
             {
-                dto.Likes = voteCounts.ContainsKey(dto.SpoonacularId) ? voteCounts[dto.SpoonacularId] : 0;
-                dto.Voted = !string.IsNullOrEmpty(userId) && userVotedIds.Contains(dto.SpoonacularId);
+                string localId = spoonacularIdToLocalId.ContainsKey(dto.SpoonacularId) ? spoonacularIdToLocalId[dto.SpoonacularId] : null;
+                dto.Likes = (localId != null && voteCounts.ContainsKey(localId)) ? voteCounts[localId] : 0;
+                dto.Voted = !string.IsNullOrEmpty(userId) && (localId != null && userVotedIds.Contains(localId));
             }
             return Ok(dtos);
         }

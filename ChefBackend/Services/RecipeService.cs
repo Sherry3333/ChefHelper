@@ -42,9 +42,37 @@ public class RecipeService
         return await _recipeCollection.Find(r => r.SpoonacularId == spoonacularId).FirstOrDefaultAsync();
     }
 
+    // Batch get recipes by a list of SpoonacularIds
+    public async Task<List<Recipe>> GetBySpoonacularIdsAsync(List<int> spoonacularIds)
+    {
+        var filter = Builders<Recipe>.Filter.In(r => r.SpoonacularId, spoonacularIds);
+        return await _recipeCollection.Find(filter).ToListAsync();
+    }
+
+    // get all recipes created by the current user
+    public async Task<List<Recipe>> GetByCreatorAsync(string userId)
+    {
+        var filter = Builders<Recipe>.Filter.Eq(r => r.CreatedBy, userId);
+        return await _recipeCollection.Find(filter).ToListAsync();
+    }
+
+    // get all user created recipes
+    public async Task<List<Recipe>> GetAllUserCreatedAsync()
+    {
+        var filter = Builders<Recipe>.Filter.Ne(r => r.CreatedBy, null);
+        return await _recipeCollection.Find(filter).ToListAsync();
+    }
+
     // Create a recipe from SpoonacularRecipeDetail
     public async Task<Recipe> CreateFromSpoonacularAsync(SpoonacularRecipeDetail detail)
     {
+        // Check if recipe with this SpoonacularId already exists
+        var existingRecipe = await GetBySpoonacularIdAsync(detail.Id);
+        if (existingRecipe != null)
+        {
+            return existingRecipe;
+        }
+
         var recipe = new Recipe
         {
             SpoonacularId = detail.Id,

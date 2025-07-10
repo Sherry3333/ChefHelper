@@ -19,13 +19,13 @@ export async function fetchRecipes() {
     }
 }
 
-export async function saveRecipe(name, ingredients, content) {
+export async function saveRecipe(title, ingredients, instructions) {
     try {
-        const response = await axiosInstance.post(API_URL + "/add", {
-            name,
-            ingredients,
-            content
-        });
+        const response = await axiosInstance.post(
+            API_URL + "/add",
+            { title, ingredients, instructions, image: '' },
+            { headers: getAuthHeader() }
+        );
         return response.data;  
     } catch (error) {
         console.error("Error saving recipe:", error);
@@ -44,10 +44,16 @@ export async function deleteRecipe(id) {
 
 export async function updateRecipe(id, updatedRecipe) {
     try {
-        const response = await axiosInstance.put(`${API_URL}/${id}`, updatedRecipe);
+        const response = await axiosInstance.put(
+            `${API_URL}/${id}`,
+            updatedRecipe,
+            { headers: getAuthHeader() }
+        );
         console.log(`Recipe with id ${id} updated`, response.data);
+        return response.data;
     } catch (error) {
         console.error(`Error updating recipe with id ${id}:`, error);
+        return null;
     }
 }
 
@@ -148,9 +154,19 @@ export async function searchRecipes(query, count = 10) {
     }
 }
 
+// Helper to build favorite/vote request body
+function buildRecipeKey(recipe) {
+  const id = recipe.id || null;
+  // spoonacularId 始终为数字
+  const spoonacularId = recipe.spoonacularId ? Number(recipe.spoonacularId) : (recipe.SpoonacularId ? Number(recipe.SpoonacularId) : null);
+  return {
+    recipeId: id ? id : null,
+    spoonacularId: !id && spoonacularId ? spoonacularId : null
+  };
+}
+
 // --- Favorite-related API ---
 
-// Get all favorite recipes for current user (requires JWT)
 export async function fetchFavoriteRecipes() {
     try {
         const response = await axiosInstance.get('/favorites', {
@@ -164,9 +180,9 @@ export async function fetchFavoriteRecipes() {
 }
 
 // Add a recipe to favorites (requires JWT)
-export async function addFavorite(spoonacularId) {
+export async function addFavorite(recipe) {
     try {
-        await axiosInstance.post(`/favorites/${spoonacularId}`, {}, {
+        await axiosInstance.post('/favorites', buildRecipeKey(recipe), {
             headers: getAuthHeader()
         });
     } catch (error) {
@@ -176,10 +192,11 @@ export async function addFavorite(spoonacularId) {
 }
 
 // Remove a recipe from favorites (requires JWT)
-export async function removeFavorite(spoonacularId) {
+export async function removeFavorite(recipe) {
     try {
-        await axiosInstance.delete(`/favorites/${spoonacularId}`, {
-            headers: getAuthHeader()
+        await axiosInstance.delete('/favorites', {
+            headers: getAuthHeader(),
+            data: buildRecipeKey(recipe)
         });
     } catch (error) {
         console.error('Failed to remove favorite:', error);
@@ -187,19 +204,88 @@ export async function removeFavorite(spoonacularId) {
     }
 }
 
-export async function fetchMyRecipeDetail(id) {
-    const res = await axiosInstance.get(`/myrecipe/${id}`);
+// --- Vote-related API ---
+
+export async function addVote(recipe) {
+    await axiosInstance.post('/votes', buildRecipeKey(recipe), {
+        headers: getAuthHeader()
+    });
+}
+
+export async function removeVote(recipe) {
+    await axiosInstance.delete('/votes', {
+        headers: getAuthHeader(),
+        data: buildRecipeKey(recipe)
+    });
+}
+
+export async function fetchVoteStatus(recipe) {
+    const requestBody = buildRecipeKey(recipe);
+    console.log('fetchVoteStatus request body:', requestBody, 'for recipe:', recipe);
+    const res = await axiosInstance.post('/votes/status', requestBody, {
+        headers: getAuthHeader()
+    });
     return res.data;
 }
 
-export async function addVote(recipeId) {
-  await axiosInstance.post(`/votes/${recipeId}`, {}, {
-    headers: getAuthHeader()
-  });
+export async function fetchVoteCount(recipe) {
+    const res = await axiosInstance.post('/votes/count', buildRecipeKey(recipe), {
+        headers: getAuthHeader()
+    });
+    return res.data;
 }
 
-export async function removeVote(recipeId) {
-  await axiosInstance.delete(`/votes/${recipeId}`, {
-    headers: getAuthHeader()
-  });
+export async function fetchMyRecipeDetail(id) {
+    const res = await axiosInstance.get(`/myrecipe/${id}`, {
+        headers: getAuthHeader()
+    });
+    return res.data;
+}
+
+export async function fetchMyCreatedRecipes() {
+  try {
+    const response = await axiosInstance.get('/myrecipe/mine', {
+      headers: getAuthHeader()
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch my created recipes:', error);
+    return [];
+  }
+}
+
+export async function fetchAllUserCreatedRecipes() {
+    try {
+        const response = await axiosInstance.get('/myrecipe/allUserCreated');
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch all user created recipes:', error);
+        return [];
+    }
+}
+
+// Helper function to build a unique key for favorites
+export function buildFavoriteKey(recipe) {
+  // spoonacularId 
+  const id = recipe.id || null;
+  const spoonacularId = recipe.spoonacularId ? Number(recipe.spoonacularId) : (recipe.SpoonacularId ? Number(recipe.SpoonacularId) : null);
+  return id ? `local-${id}` : `spoon-${spoonacularId}`;
+}
+
+// Unified toggle favorite function
+export async function toggleFavorite(recipe, isFavorite) {
+  if (isFavorite) {
+    return await removeFavorite(recipe);
+  } else {
+    return await addFavorite(recipe);
+  }
+}
+
+// Normalize recipe fields to always have id and spoonacularId (数字)
+export function normalizeRecipeFields(recipe) {
+  return {
+    ...recipe,
+    id: recipe.id || null,
+    spoonacularId: recipe.spoonacularId ? Number(recipe.spoonacularId) : (recipe.SpoonacularId ? Number(recipe.SpoonacularId) : null)
+  };
 }
