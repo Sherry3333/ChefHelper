@@ -272,23 +272,15 @@ export default function HomePage() {
       {!loading && !error && userCreatedRecipes.length > 0 && (
         <section className="user-created-section">
           <h2>User Creations</h2>
-          <div className="recipe-cards-container">
-            <div className="recipe-cards-grid">
-              {userCreatedRecipes.map((recipe) => {
-                console.log('HomePage recipe:', recipe);
-                return (
-                  <RecipeCard
-                    key={recipe.spoonacularId || recipe.id}
-                    recipe={recipe}
-                    onClick={handleRecipeClick}
-                    isFavorite={isFavorite(recipe)}
-                    onToggleFavorite={handleToggleFavorite}
-                    onVoteUpdate={handleUserCreatedVoteUpdate}
-                  />
-                )
-              })}
-            </div>
-          </div>
+          <SeasonalCarousel
+            recipes={userCreatedRecipes}
+            activeCardId={activeCardId}
+            setActiveCardId={setActiveCardId}
+            handleRecipeClick={handleRecipeClick}
+            sliderSettings={settings}
+            toggleFavorite={handleToggleFavorite}
+            onVoteUpdate={handleUserCreatedVoteUpdate}
+          />
         </section>
       )}
 

@@ -5,6 +5,7 @@ import FridgeAIPage from './pages/FridgeAIPage';
 import MyRecipesPage from './pages/MyRecipesPage';
 import LoginPage from './pages/LoginPage';
 import CreateRecipePage from './pages/CreateRecipePage';
+import ProfilePage from './pages/ProfilePage';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -27,6 +28,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/create-recipe" element={<CreateRecipePage />} />
               <Route path="/create-recipe/:id" element={<CreateRecipePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Routes>
             <ToastContainer position="top-center" />
           </BrowserRouter>

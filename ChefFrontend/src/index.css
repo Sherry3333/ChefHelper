@@ -1241,3 +1241,12 @@ nav a:hover {
 .my-recipes-create-btn:hover {
   background: #d06a2c !important;
 }
+
+.profile-page-container {
+  max-width: 400px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px #eee;
+}
