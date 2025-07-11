@@ -9,12 +9,17 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setMsg("");
+    if (!isLogin && password !== confirmPassword) {
+      setMsg("Passwords do not match");
+      return;
+    }
     try {
       if (isLogin) {
         const { token } = await loginApi(email, password);
@@ -50,6 +55,15 @@ export default function LoginPage() {
             type="password"
             required
           />
+          {!isLogin && (
+            <input
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder="Confirm Password"
+              type="password"
+              required
+            />
+          )}
           <button type="submit" disabled={loading} style={{ padding: 8 }}>
             {isLogin ? "Login" : "Register"}
           </button>
@@ -67,9 +81,13 @@ export default function LoginPage() {
             onError={err => setMsg(err)}
           />
         </div>
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        {msg && <div style={{ color: "green" }}>{msg}</div>}
-        {isLoggedIn && <div style={{ color: "green" }}>Logged in</div>}
+        {msg && (
+          <div style={{ color: msg.toLowerCase().includes('success') ? 'green' : 'red' }}>
+            {msg}
+          </div>
+        )}
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+        {isLoggedIn && <div style={{ color: 'green' }}>Logged in</div>}
       </section>
     </main>
   );
