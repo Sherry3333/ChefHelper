@@ -1,3 +1,8 @@
 [Bb]in/
 [Oo]bj/
 .env
+
+# Exclude uploaded images but keep the uploads folder structure
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
+
