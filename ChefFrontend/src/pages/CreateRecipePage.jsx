@@ -9,21 +9,21 @@ const CreateRecipePage = () => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [originalRecipe, setOriginalRecipe] = useState(null); // 新增
+  const [originalRecipe, setOriginalRecipe] = useState(null); // new
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // 编辑模式下拉取详情
+  // edit mode fetch detail
   useEffect(() => {
     if (!id) return;
     setLoading(true);
     fetchMyRecipeDetail(id)
       .then(data => {
-        setOriginalRecipe(data); // 保存原始数据
+        setOriginalRecipe(data); // save original data
         setTitle(data.title || '');
         setIngredients(data.ingredients && data.ingredients.length > 0 ? data.ingredients : ['']);
         setInstructions(data.instructions || '');
-        // image 先不处理
+        setImage(data.image || null); // initialize image state to original image URL
       })
       .catch(() => setError('Failed to load recipe details'))
       .finally(() => setLoading(false));
@@ -50,20 +50,22 @@ const CreateRecipePage = () => {
     try {
       let result;
       if (id) {
-        // merge original recipe with new data
+        // Only send image if it's a File (i.e., user selected a new image)
+        let imageFile = null;
+        if (image instanceof File) {
+          imageFile = image;
+        }
         result = await updateRecipe(id, {
-          ...(originalRecipe || {}),
-          id,
           title,
           ingredients,
           instructions,
-          image: ''
+          image: imageFile // Only send File, not URL string
         });
       } else {
-        result = await saveRecipe(title, ingredients, instructions);
+        result = await saveRecipe(title, ingredients, instructions, image instanceof File ? image : null);
       }
       if (result !== null && result !== undefined) {
-        navigate('/my-recipes');
+        navigate('/my-recipes?tab=created');
       } else {
         setError('Failed to save recipe, please try again');
       }
@@ -98,6 +100,17 @@ const CreateRecipePage = () => {
         </div>
         <div className="form-group">
           <label>Recipe Image</label>
+          {/* image preview */}
+          {image && !(image instanceof File) && (
+            <div style={{ marginBottom: 8 }}>
+              <img src={image} alt="Current" style={{ maxWidth: 180, borderRadius: 8 }} />
+            </div>
+          )}
+          {image instanceof File && (
+            <div style={{ marginBottom: 8 }}>
+              <img src={URL.createObjectURL(image)} alt="Preview" style={{ maxWidth: 180, borderRadius: 8 }} />
+            </div>
+          )}
           <input type="file" accept="image/*" onChange={handleImageChange} />
         </div>
         {error && <div className="form-error">{error}</div>}

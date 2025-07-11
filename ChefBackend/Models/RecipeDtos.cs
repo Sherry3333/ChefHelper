@@ -22,4 +22,13 @@ namespace ChefBackend.Models
         public int Likes { get; set; }
         public bool Voted { get; set; } // Whether the current user has voted (liked) this recipe
     }
+
+    // DTO for form upload (multipart/form-data)
+    public class RecipeFormDto
+    {
+        public string? Title { get; set; }
+        public string? Ingredients { get; set; } // JSON string from frontend
+        public string? Instructions { get; set; }
+        public Microsoft.AspNetCore.Http.IFormFile? Image { get; set; }
+    }
 } 

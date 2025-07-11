@@ -5,17 +5,19 @@ import { toggleFavorite, fetchMyRecipeDetail, fetchMyCreatedRecipes, deleteRecip
 import RecipeDetailSection from "../components/RecipeDetailSection";
 import Modal from "../components/Modal";
 import RecipeCard from "../components/RecipeCard";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function MyRecipesPage() {
   const { isLoggedIn } = useAuth();
   const { isFavorite, updateFavoriteState, refreshFavorites } = useFavorites();
-  const [tab, setTab] = useState("saved"); // "saved" or "created"
+  const navigate = useNavigate();
+  const location = useLocation();
+  const queryTab = new URLSearchParams(location.search).get('tab');
+  const [tab, setTab] = useState(queryTab === 'created' ? 'created' : 'saved');
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const navigate = useNavigate();
 
   // Fetch recipes based on tab
   const fetchRecipes = async () => {
@@ -26,15 +28,11 @@ export default function MyRecipesPage() {
     try {
       if (tab === "saved") {
         const data = await fetchFavoriteRecipes();
-        console.log('MyRecipesPage: Fetched favorite recipes:', data);
         const normalizedData = data.map(normalizeRecipeFields);
-        console.log('MyRecipesPage: Normalized favorite recipes:', normalizedData);
         setRecipes(normalizedData);
       } else {
         const data = await fetchMyCreatedRecipes();
-        console.log('MyRecipesPage: Fetched created recipes:', data);
         const normalizedData = data.map(normalizeRecipeFields);
-        console.log('MyRecipesPage: Normalized created recipes:', normalizedData);
         setRecipes(normalizedData);
       }
     } catch (err) {

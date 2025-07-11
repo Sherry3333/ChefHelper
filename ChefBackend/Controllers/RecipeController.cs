@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using ChefBackend.Models;
 using ChefBackend.Services;
+using Microsoft.AspNetCore.Http;
 
 
 [ApiController]
@@ -79,24 +80,118 @@ public class RecipeController : ControllerBase{
     }
 
     [HttpPost("add")]
-    public async Task<IActionResult> addRecipe([FromBody] Recipe recipe){
+    public async Task<IActionResult> AddRecipe([FromForm] RecipeFormDto dto)
+    {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        recipe.CreatedBy = userId;
-        recipe.CreatedAt = DateTime.UtcNow;
+        string imageUrl = "";
+
+        // Save image file to wwwroot/uploads and generate URL
+        if (dto.Image != null && dto.Image.Length > 0)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.Image.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.Image.CopyToAsync(stream);
+            }
+            // Generate image URL for client access
+            imageUrl = $"/uploads/{fileName}";
+        }
+
+        // Deserialize ingredients from JSON string
+        var ingredientsList = System.Text.Json.JsonSerializer.Deserialize<List<string>>(dto.Ingredients);
+
+        var recipe = new Recipe
+        {
+            Title = dto.Title,
+            Ingredients = ingredientsList,
+            Instructions = dto.Instructions,
+            Image = imageUrl,
+            CreatedBy = userId,
+            CreatedAt = DateTime.UtcNow
+        };
+
         await _dbService.CreateAsync(recipe);
         return CreatedAtAction(nameof(GetById), new { id = recipe.Id }, recipe);
     }
     
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] Recipe recipe){
+    public async Task<IActionResult> Update(string id, [FromForm] RecipeFormDto dto)
+    {
         var recipeDb = await _dbService.GetByIdAsync(id);
         if (recipeDb == null)
         {
             return NotFound(new { code = 40401, message = "User not found" });
         }
-       
-        await _dbService.UpdateAsync(id, recipe);
+
+        // Only update title if provided
+        if (!string.IsNullOrWhiteSpace(dto.Title))
+            recipeDb.Title = dto.Title;
+
+        // Only update instructions if provided
+        if (!string.IsNullOrWhiteSpace(dto.Instructions))
+            recipeDb.Instructions = dto.Instructions;
+
+        // Only update ingredients if provided and valid JSON array
+        if (!string.IsNullOrWhiteSpace(dto.Ingredients))
+        {
+            try
+            {
+                var ingredientsList = System.Text.Json.JsonSerializer.Deserialize<List<string>>(dto.Ingredients);
+                recipeDb.Ingredients = ingredientsList;
+            }
+            catch
+            {
+                return BadRequest("Ingredients must be a JSON array of strings or empty.");
+            }
+        }
+
+        // Only update image if a new file is uploaded
+        if (dto.Image != null && dto.Image.Length > 0)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.Image.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.Image.CopyToAsync(stream);
+            }
+            
+            // Delete old image file to save disk space (if exists and is not default image)
+            if (!string.IsNullOrEmpty(recipeDb.Image) && recipeDb.Image.StartsWith("/uploads/"))
+            {
+                var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", recipeDb.Image.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    try 
+                    { 
+                        System.IO.File.Delete(oldImagePath); 
+                    } 
+                    catch (Exception ex) 
+                    { 
+                        // Log error but don't fail the update operation
+                        // In production, you might want to use a proper logging framework
+                        Console.WriteLine($"Failed to delete old image: {ex.Message}");
+                    }
+                }
+            }
+            
+            // Generate new image URL for client access
+            recipeDb.Image = $"/uploads/{fileName}";
+        }
+        // If no new image, keep the old image
+
+        await _dbService.UpdateAsync(id, recipeDb);
         return NoContent();
     }
 

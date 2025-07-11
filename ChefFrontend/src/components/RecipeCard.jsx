@@ -4,6 +4,7 @@ import { addVote, removeVote } from '../services/recipesServices';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../context/FavoriteContext';
 import { toast } from 'react-toastify';
+import { getImageUrl } from '../utils/getImageUrl';
 
 export default function RecipeCard({ recipe, onClick, onToggleFavorite, isFavorite, onEdit, onDelete, onVoteUpdate }) {
   const [voteLoading, setVoteLoading] = React.useState(false);
@@ -64,7 +65,7 @@ export default function RecipeCard({ recipe, onClick, onToggleFavorite, isFavori
       <div className="recipe-card-image-wrapper">
         <img
           className={`recipe-card-image${recipe.image ? '' : ' default-chef-image'}`}
-          src={recipe.image || chefIcon}
+          src={getImageUrl(recipe.image)}
           alt={recipe.title}
           onError={e => {
             if (e.target.src !== chefIcon) {

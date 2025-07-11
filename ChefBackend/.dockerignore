@@ -23,3 +23,6 @@ obj/
 .DS_Store
 *.swp
 *.tmp
+
+# Exclude entire wwwroot folder
+wwwroot/

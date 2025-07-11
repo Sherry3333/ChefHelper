@@ -22,4 +22,6 @@ instance.interceptors.request.use(
   error => Promise.reject(error)
 );
 
+export const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
 export default instance;

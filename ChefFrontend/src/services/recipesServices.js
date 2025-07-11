@@ -19,11 +19,17 @@ export async function fetchRecipes() {
     }
 }
 
-export async function saveRecipe(title, ingredients, instructions) {
+export async function saveRecipe(title, ingredients, instructions, imageFile) {
     try {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('ingredients', JSON.stringify(ingredients));
+        formData.append('instructions', instructions);
+        if (imageFile) formData.append('image', imageFile);
         const response = await axiosInstance.post(
             API_URL + "/add",
-            { title, ingredients, instructions, image: '' }
+            formData,
+            { headers: { 'Content-Type': 'multipart/form-data' } }
         );
         return response.data;  
     } catch (error) {
@@ -43,9 +49,18 @@ export async function deleteRecipe(id) {
 
 export async function updateRecipe(id, updatedRecipe) {
     try {
+        const formData = new FormData();
+        formData.append('title', updatedRecipe.title);
+        formData.append('ingredients', JSON.stringify(updatedRecipe.ingredients));
+        formData.append('instructions', updatedRecipe.instructions);
+        // only append image if it's a File
+        if (updatedRecipe.image instanceof File) {
+            formData.append('image', updatedRecipe.image);
+        }
         const response = await axiosInstance.put(
             `${API_URL}/${id}`,
-            updatedRecipe
+            formData,
+            { headers: { 'Content-Type': 'multipart/form-data' } }
         );
         console.log(`Recipe with id ${id} updated`, response.data);
         return response.data;
