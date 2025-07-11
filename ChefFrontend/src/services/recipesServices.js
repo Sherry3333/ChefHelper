@@ -23,8 +23,7 @@ export async function saveRecipe(title, ingredients, instructions) {
     try {
         const response = await axiosInstance.post(
             API_URL + "/add",
-            { title, ingredients, instructions, image: '' },
-            { headers: getAuthHeader() }
+            { title, ingredients, instructions, image: '' }
         );
         return response.data;  
     } catch (error) {
@@ -46,8 +45,7 @@ export async function updateRecipe(id, updatedRecipe) {
     try {
         const response = await axiosInstance.put(
             `${API_URL}/${id}`,
-            updatedRecipe,
-            { headers: getAuthHeader() }
+            updatedRecipe
         );
         console.log(`Recipe with id ${id} updated`, response.data);
         return response.data;
@@ -169,9 +167,7 @@ function buildRecipeKey(recipe) {
 
 export async function fetchFavoriteRecipes() {
     try {
-        const response = await axiosInstance.get('/favorites', {
-            headers: getAuthHeader()
-        });
+        const response = await axiosInstance.get('/favorites');
         return response.data;
     } catch (error) {
         console.error('Failed to fetch favorite recipes:', error);
@@ -182,9 +178,7 @@ export async function fetchFavoriteRecipes() {
 // Add a recipe to favorites (requires JWT)
 export async function addFavorite(recipe) {
     try {
-        await axiosInstance.post('/favorites', buildRecipeKey(recipe), {
-            headers: getAuthHeader()
-        });
+        await axiosInstance.post('/favorites', buildRecipeKey(recipe));
     } catch (error) {
         console.error('Failed to add favorite:', error);
         throw error;
@@ -195,7 +189,6 @@ export async function addFavorite(recipe) {
 export async function removeFavorite(recipe) {
     try {
         await axiosInstance.delete('/favorites', {
-            headers: getAuthHeader(),
             data: buildRecipeKey(recipe)
         });
     } catch (error) {
@@ -207,14 +200,11 @@ export async function removeFavorite(recipe) {
 // --- Vote-related API ---
 
 export async function addVote(recipe) {
-    await axiosInstance.post('/votes', buildRecipeKey(recipe), {
-        headers: getAuthHeader()
-    });
+    await axiosInstance.post('/votes', buildRecipeKey(recipe));
 }
 
 export async function removeVote(recipe) {
     await axiosInstance.delete('/votes', {
-        headers: getAuthHeader(),
         data: buildRecipeKey(recipe)
     });
 }
@@ -222,31 +212,23 @@ export async function removeVote(recipe) {
 export async function fetchVoteStatus(recipe) {
     const requestBody = buildRecipeKey(recipe);
     console.log('fetchVoteStatus request body:', requestBody, 'for recipe:', recipe);
-    const res = await axiosInstance.post('/votes/status', requestBody, {
-        headers: getAuthHeader()
-    });
+    const res = await axiosInstance.post('/votes/status', requestBody);
     return res.data;
 }
 
 export async function fetchVoteCount(recipe) {
-    const res = await axiosInstance.post('/votes/count', buildRecipeKey(recipe), {
-        headers: getAuthHeader()
-    });
+    const res = await axiosInstance.post('/votes/count', buildRecipeKey(recipe));
     return res.data;
 }
 
 export async function fetchMyRecipeDetail(id) {
-    const res = await axiosInstance.get(`/myrecipe/${id}`, {
-        headers: getAuthHeader()
-    });
+    const res = await axiosInstance.get(`/myrecipe/${id}`);
     return res.data;
 }
 
 export async function fetchMyCreatedRecipes() {
   try {
-    const response = await axiosInstance.get('/myrecipe/mine', {
-      headers: getAuthHeader()
-    });
+    const response = await axiosInstance.get('/myrecipe/mine');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch my created recipes:', error);
@@ -281,7 +263,7 @@ export async function toggleFavorite(recipe, isFavorite) {
   }
 }
 
-// Normalize recipe fields to always have id and spoonacularId (数字)
+// Normalize recipe fields to always have id and spoonacularId
 export function normalizeRecipeFields(recipe) {
   return {
     ...recipe,

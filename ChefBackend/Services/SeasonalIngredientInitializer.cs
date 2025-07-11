@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using ChefBackend.Models;
+using ChefBackend.Services;
 using System.Text.Json;
 
 // Initializer for importing seasonal ingredients from JSON if collection is empty

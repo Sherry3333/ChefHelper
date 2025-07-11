@@ -9,9 +9,9 @@ export default function RecipeCard({ recipe, onClick, onToggleFavorite, isFavori
   const [voteLoading, setVoteLoading] = React.useState(false);
   const { isLoggedIn } = useAuth();
 
-  // Use recipe.Voted and recipe.Likes directly from API response
-  const voted = recipe.Voted || false;
-  const likes = recipe.Likes || 0;
+  // Use recipe.voted and recipe.likes directly from API response
+  const voted = recipe.voted || false;
+  const likes = recipe.likes || 0;
 
   const handleVote = async (e) => {
     e.stopPropagation();
@@ -20,20 +20,34 @@ export default function RecipeCard({ recipe, onClick, onToggleFavorite, isFavori
       return;
     }
     if (voteLoading) return;
+    
+    console.log('RecipeCard: handleVote called', { 
+      recipe: { id: recipe.id, spoonacularId: recipe.spoonacularId },
+      currentVoted: voted,
+      currentLikes: likes 
+    });
+    
     setVoteLoading(true);
     try {
       if (voted) {
+        console.log('RecipeCard: Removing vote');
         await removeVote(recipe);
       } else {
+        console.log('RecipeCard: Adding vote');
         await addVote(recipe);
       }
+      console.log('RecipeCard: Vote operation successful');
       // Notify parent component to refresh recipe data
       if (onVoteUpdate) {
         onVoteUpdate();
       }
     } catch (err) {
-      console.error('Vote error:', err);
-      toast.error('Failed to update vote');
+      console.error('RecipeCard: Vote error:', err);
+      if (err.response && err.response.status === 409) {
+        toast.error('You have already voted for this recipe');
+      } else {
+        toast.error('Failed to update vote');
+      }
     } finally {
       setVoteLoading(false);
     }

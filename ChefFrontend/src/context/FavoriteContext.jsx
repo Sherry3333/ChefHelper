@@ -44,7 +44,7 @@ export function FavoriteProvider({ children }) {
   const updateFavoriteState = (recipe, isFavorite) => {
     const normalizedRecipe = normalizeRecipeFields(recipe);
     const key = buildFavoriteKey(normalizedRecipe);
-    console.log('FavoriteContext: updateFavoriteState called:', { recipe: normalizedRecipe, key, isFavorite });
+    
     setFavoriteMap(prev => ({
       ...prev,
       [key]: isFavorite
@@ -55,7 +55,7 @@ export function FavoriteProvider({ children }) {
     const normalizedRecipe = normalizeRecipeFields(recipe);
     const key = buildFavoriteKey(normalizedRecipe);
     const result = favoriteMap[key] || false;
-    console.log('FavoriteContext: isFavorite called:', { recipe: normalizedRecipe, key, result, favoriteMap });
+   
     return result;
   };
 

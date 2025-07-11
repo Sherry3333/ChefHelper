@@ -110,6 +110,10 @@ using (var scope = app.Services.CreateScope())
     var initializer = scope.ServiceProvider.GetRequiredService<SeasonalIngredientInitializer>();
     string jsonPath = Path.Combine(AppContext.BaseDirectory, "seasonal_ingredients.json");
     await initializer.InitializeAsync(jsonPath);
+    
+    // Create database indexes
+    var dbService = scope.ServiceProvider.GetRequiredService<DbService>();
+    await dbService.CreateIndexesAsync();
 }
 
 

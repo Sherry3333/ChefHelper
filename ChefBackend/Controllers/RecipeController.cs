@@ -48,17 +48,22 @@ public class RecipeController : ControllerBase{
     public async Task<List<Recipe>> GetAllUserCreated()
     {
         var recipes = await _dbService.GetAllUserCreatedAsync();
-        
-        // Add vote information for anonymous users (only counts, no voted status)
         var recipeIds = recipes.Select(r => r.Id).ToList();
         var voteCounts = await _voteService.GetVoteCountsAsync(recipeIds);
-        
+
+        List<string> userVotedIds = new List<string>();
+        if (User.Identity.IsAuthenticated)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            userVotedIds = await _voteService.GetUserVotedRecipeIdsAsync(userId, recipeIds);
+        }
+
         foreach (var recipe in recipes)
         {
             recipe.Likes = voteCounts.ContainsKey(recipe.Id) ? voteCounts[recipe.Id] : 0;
-            recipe.Voted = false; // Anonymous users can't vote
+            recipe.Voted = userVotedIds.Contains(recipe.Id);
         }
-        
+
         return recipes;
     }
 

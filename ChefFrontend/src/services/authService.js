@@ -18,24 +18,4 @@ export async function googleLogin(idToken) {
   return res.data; // { token }
 }
 
-export async function getFavorites(token) {
-    console.log('getFavorites token:', token);
-  const res = await axiosInstance.get(`${API_URL}/favorites`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.data;
-}
-
-export async function addFavorite(recipeId, token) {
-  const res = await axiosInstance.post(`${API_URL}/favorites/${recipeId}`, {}, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.data;
-}
-
-export async function removeFavorite(recipeId, token) {
-  const res = await axiosInstance.delete(`${API_URL}/favorites/${recipeId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.data;
-}
+// 如果是登录、注册等特殊接口需要自定义 Authorization，可以保留，否则建议全部依赖 axiosInstance 的拦截器。

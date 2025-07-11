@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using ChefBackend.Models;
+using ChefBackend.Services;
 
 // Service for SeasonalIngredient CRUD operations
 public class SeasonalIngredientService

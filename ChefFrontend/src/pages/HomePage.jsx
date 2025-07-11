@@ -70,6 +70,8 @@ export default function HomePage() {
             return;
           }
         }
+
+       
         setSeasonalRecipes(recipes.map(normalizeRecipeFields));
         
         // get all user created recipes
@@ -103,11 +105,9 @@ export default function HomePage() {
     }
     
     const currentFavoriteState = isFavorite(recipe);
-    console.log('HomePage: handleToggleFavorite called:', { recipe, currentFavoriteState });
     
     try {
       await toggleFavorite(recipe, currentFavoriteState);
-      console.log('HomePage: toggleFavorite API call successful, refreshing favorites');
       // Refresh the global favorite list to ensure consistency across all pages
       refreshFavorites();
     } catch (error) {
@@ -119,18 +119,38 @@ export default function HomePage() {
   // Refresh seasonal recipes after vote
   const handleSeasonalVoteUpdate = async () => {
     try {
+      let recipes;
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-          const { latitude, longitude } = pos.coords;
-          const recipes = await fetchSeasonalRecipes(latitude, longitude, 9);
-          setSeasonalRecipes(recipes.map(normalizeRecipeFields));
-        }, async () => {
-          const recipes = await fetchSeasonalRecipes(-36.8485, 174.7633, 9);
-          setSeasonalRecipes(recipes.map(normalizeRecipeFields));
+        await new Promise(resolve => {
+          navigator.geolocation.getCurrentPosition(async (pos) => {
+            const { latitude, longitude } = pos.coords;
+            try {
+              recipes = await fetchSeasonalRecipes(latitude, longitude, 9);
+              console.log('HomePage: Fetched seasonal recipes with geolocation:', recipes);
+            } catch (err) {
+              console.error('Failed to fetch seasonal recipes with geolocation:', err);
+              recipes = await fetchSeasonalRecipes(-36.8485, 174.7633, 9);
+            }
+            resolve();
+          }, async () => {
+            try {
+              recipes = await fetchSeasonalRecipes(-36.8485, 174.7633, 9);
+              console.log('HomePage: Fetched seasonal recipes with default location:', recipes);
+            } catch (err) {
+              console.error('Failed to fetch seasonal recipes with default location:', err);
+            }
+            resolve();
+          });
         });
       } else {
-        const recipes = await fetchSeasonalRecipes(-36.8485, 174.7633, 9);
-        setSeasonalRecipes(recipes.map(normalizeRecipeFields));
+        recipes = await fetchSeasonalRecipes(-36.8485, 174.7633, 9);
+        console.log('HomePage: Fetched seasonal recipes without geolocation:', recipes);
+      }
+
+      
+      if (recipes) {
+        const normalizedRecipes = recipes.map(normalizeRecipeFields);
+        setSeasonalRecipes(normalizedRecipes);
       }
     } catch (err) {
       console.error('Failed to refresh seasonal recipes:', err);
@@ -254,16 +274,19 @@ export default function HomePage() {
           <h2>User Creations</h2>
           <div className="recipe-cards-container">
             <div className="recipe-cards-grid">
-              {userCreatedRecipes.map((recipe) => (
-                <RecipeCard
-                  key={recipe.spoonacularId || recipe.id}
-                  recipe={recipe}
-                  onClick={handleRecipeClick}
-                  isFavorite={isFavorite(recipe)}
-                  onToggleFavorite={handleToggleFavorite}
-                  onVoteUpdate={handleUserCreatedVoteUpdate}
-                />
-              ))}
+              {userCreatedRecipes.map((recipe) => {
+                console.log('HomePage recipe:', recipe);
+                return (
+                  <RecipeCard
+                    key={recipe.spoonacularId || recipe.id}
+                    recipe={recipe}
+                    onClick={handleRecipeClick}
+                    isFavorite={isFavorite(recipe)}
+                    onToggleFavorite={handleToggleFavorite}
+                    onVoteUpdate={handleUserCreatedVoteUpdate}
+                  />
+                )
+              })}
             </div>
           </div>
         </section>

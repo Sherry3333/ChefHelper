@@ -27,19 +27,23 @@ public class VoteController : ControllerBase
     }
 
     // Helper to resolve the correct recipeId
-    private async Task<string> ResolveRecipeIdAsync(VoteRequest request)
+    private async Task<string?> ResolveRecipeIdAsync(VoteRequest request)
     {
+        // If RecipeId is provided directly, use it
         if (!string.IsNullOrEmpty(request.RecipeId))
         {
             return request.RecipeId;
         }
+        
+        // If SpoonacularId is provided, try to find or create local recipe
         if (request.SpoonacularId.HasValue && request.SpoonacularId.Value > 0)
         {
             var localRecipe = await _recipeService.GetBySpoonacularIdAsync(request.SpoonacularId.Value);
             if (localRecipe != null)
                 return localRecipe.Id;
         }
-        throw new System.Exception("RecipeId or valid SpoonacularId required.");
+        
+        return null;
     }
 
     // Add a vote (like) for a recipe
@@ -60,15 +64,25 @@ public class VoteController : ControllerBase
             var localRecipe = await _recipeService.GetBySpoonacularIdAsync(spoonacularId.Value);
             if (localRecipe == null)
             {
-                // Fetch from Spoonacular API and insert into local database
-                var detail = await _spoonacularService.GetRecipeDetailAsync(spoonacularId.Value);
-                if (detail == null)
-                    return BadRequest("Recipe not found in Spoonacular API.");
-                localRecipe = await _recipeService.CreateFromSpoonacularAsync(detail);
+                try
+                {
+                    // Fetch from Spoonacular API and insert into local database
+                    var detail = await _spoonacularService.GetRecipeDetailAsync(spoonacularId.Value);
+                    if (detail == null)
+                        return BadRequest("Recipe not found in Spoonacular API.");
+                    localRecipe = await _recipeService.CreateFromSpoonacularAsync(detail);
+                }
+                catch (SpoonacularQuotaException ex)
+                {
+                    return StatusCode(402, new { error = ex.Message });
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { error = "Failed to fetch recipe from external API." });
+                }
             }
             recipeId = localRecipe.Id;
         }
-        // If spoonacularId == 0, recipeId is already the local id (user-created recipe)
 
         if (string.IsNullOrEmpty(recipeId))
             return BadRequest("RecipeId or valid SpoonacularId required.");
@@ -87,18 +101,12 @@ public class VoteController : ControllerBase
         if (string.IsNullOrEmpty(userId))
             return BadRequest("User ID not found in token.");
 
-        string recipeId;
-        try
-        {
-            recipeId = await ResolveRecipeIdAsync(request);
-        }
-        catch
-        {
+        string? recipeId = await ResolveRecipeIdAsync(request);
+        if (string.IsNullOrEmpty(recipeId))
             return BadRequest("RecipeId or valid SpoonacularId required.");
-        }
 
         var result = await _voteService.RemoveVoteAsync(userId, recipeId);
-        if (!result) return NotFound();
+        if (!result) return NotFound("Vote not found");
         return Ok();
     }
 
@@ -111,12 +119,8 @@ public class VoteController : ControllerBase
         if (string.IsNullOrEmpty(userId))
             return BadRequest("User ID not found in token.");
 
-        string recipeId;
-        try
-        {
-            recipeId = await ResolveRecipeIdAsync(request);
-        }
-        catch
+        string? recipeId = await ResolveRecipeIdAsync(request);
+        if (string.IsNullOrEmpty(recipeId))
         {
             // If the recipe does not exist locally, treat as not voted
             return Ok(new { voted = false });
@@ -130,12 +134,8 @@ public class VoteController : ControllerBase
     [HttpPost("count")]
     public async Task<IActionResult> GetVoteCount([FromBody] VoteRequest request)
     {
-        string recipeId;
-        try
-        {
-            recipeId = await ResolveRecipeIdAsync(request);
-        }
-        catch
+        string? recipeId = await ResolveRecipeIdAsync(request);
+        if (string.IsNullOrEmpty(recipeId))
         {
             // If the recipe does not exist locally, treat as 0 votes
             return Ok(new { count = 0 });

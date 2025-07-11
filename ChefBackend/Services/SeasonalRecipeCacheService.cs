@@ -15,14 +15,14 @@ namespace ChefBackend.Services
             _memoryCache = memoryCache;
         }
 
-        // get cache
+        // get cache - returns RecipeListItemDto with cached basic data
         public List<RecipeListItemDto> GetSeasonalRecipes(string season, string hemisphere)
         {
             var cacheKey = $"seasonal_{season}_{hemisphere}";
             return _memoryCache.Get<List<RecipeListItemDto>>(cacheKey);
         }
 
-        // save cache
+        // save cache - cache RecipeListItemDto with basic data (Likes and Voted will be recalculated)
         public void SetSeasonalRecipes(string season, string hemisphere, List<RecipeListItemDto> recipes)
         {
             var cacheKey = $"seasonal_{season}_{hemisphere}";
