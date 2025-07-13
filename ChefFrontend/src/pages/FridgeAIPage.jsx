@@ -8,7 +8,7 @@ import { handleApiError } from "../utils/errorHandler";
 import { toast } from 'react-toastify';
 import Modal from "../components/Modal";
 import RecipeDetailSection from "../components/RecipeDetailSection";
-import { getRecipeFromMistral } from "../ai";
+import { getRecipeFromOpenAI } from "../services/ai";
 
 export default function FridgeAIPage() {
   const [ingredients, setIngredients] = React.useState([]);
@@ -48,8 +48,8 @@ export default function FridgeAIPage() {
     setAiError("");
     setAiAnswer("");
     try {
-      // Fetch AI answer
-      const aiResp = await getRecipeFromMistral(ingredients);
+      // Fetch AI answer from OpenAI
+      const aiResp = await getRecipeFromOpenAI(ingredients);
       setAiAnswer(aiResp);
     } catch (err) {
       setAiError(err.message || "AI failed");

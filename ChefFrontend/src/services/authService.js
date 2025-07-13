@@ -18,4 +18,4 @@ export async function googleLogin(idToken) {
   return res.data; // { token }
 }
 
-// 如果是登录、注册等特殊接口需要自定义 Authorization，可以保留，否则建议全部依赖 axiosInstance 的拦截器。
+

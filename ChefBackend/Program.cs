@@ -117,7 +117,6 @@ using (var scope = app.Services.CreateScope())
     await dbService.CreateIndexesAsync();
 }
 
-app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

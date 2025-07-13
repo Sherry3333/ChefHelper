@@ -978,24 +978,33 @@ nav a:hover {
   }
 }
 
+/* --- Mobile: Reduce space between search bar and create button on HomePage --- */
 @media (max-width: 900px) {
   .search-toolbar {
-    margin: 12px auto 0 auto;
+    flex-direction: column;
+    align-items: stretch;
     gap: 6px;
+    margin: 12px auto 0 auto;
     padding: 0 4px;
   }
   .search-bar-inline {
-    margin-bottom: 0;
+    margin-bottom: 0 !important; /* Remove extra margin below search bar */
+    margin-top: 0 !important;
+    width: 100%;
   }
   .create-recipe-btn-wide {
-    margin-top: 0;
-    margin-bottom: 0;
+    margin: 0 !important; /* Remove extra margin above/below button */
     width: 100%;
     justify-content: center;
     align-items: center;
     display: flex;
     font-size: 18px;
     padding: 12px 0;
+  }
+  /* Remove any extra margin from children of search-toolbar */
+  .search-toolbar > * {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
 }
 

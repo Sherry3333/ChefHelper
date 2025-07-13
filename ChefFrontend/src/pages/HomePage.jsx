@@ -252,40 +252,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Seasonal Recipes Section */}
-      {!loading && !error && seasonalRecipes.length > 0 && (
-        <section className="seasonal-section">
-          <h2>Seasonal Recipes</h2>
-          <SeasonalCarousel
-            recipes={seasonalRecipes}
-            activeCardId={activeCardId}
-            setActiveCardId={setActiveCardId}
-            handleRecipeClick={handleRecipeClick}
-            sliderSettings={settings}
-            toggleFavorite={handleToggleFavorite}
-            onVoteUpdate={handleSeasonalVoteUpdate}
-          />
-        </section>
-      )}
-
-      {/* User Created Recipes Section */}
-      {!loading && !error && userCreatedRecipes.length > 0 && (
-        <section className="user-created-section">
-          <h2>User Creations</h2>
-          <SeasonalCarousel
-            recipes={userCreatedRecipes}
-            activeCardId={activeCardId}
-            setActiveCardId={setActiveCardId}
-            handleRecipeClick={handleRecipeClick}
-            sliderSettings={settings}
-            toggleFavorite={handleToggleFavorite}
-            onVoteUpdate={handleUserCreatedVoteUpdate}
-          />
-        </section>
-      )}
-
       {/* Search Results Section */}
-      {searchResults.length > 0 && (
+      {searchResults.length > 0 ? (
         <SearchResults
           searchResults={searchResults}
           onRecipeClick={handleRecipeClick}
@@ -299,6 +267,40 @@ export default function HomePage() {
             }
           }}
         />
+      ) : (
+        <>
+          {/* Seasonal Recipes Section */}
+          {!loading && !error && seasonalRecipes.length > 0 && (
+            <section className="seasonal-section">
+              <h2>Seasonal Recipes</h2>
+              <SeasonalCarousel
+                recipes={seasonalRecipes}
+                activeCardId={activeCardId}
+                setActiveCardId={setActiveCardId}
+                handleRecipeClick={handleRecipeClick}
+                sliderSettings={settings}
+                toggleFavorite={handleToggleFavorite}
+                onVoteUpdate={handleSeasonalVoteUpdate}
+              />
+            </section>
+          )}
+
+          {/* User Created Recipes Section */}
+          {!loading && !error && userCreatedRecipes.length > 0 && (
+            <section className="user-created-section">
+              <h2>User Creations</h2>
+              <SeasonalCarousel
+                recipes={userCreatedRecipes}
+                activeCardId={activeCardId}
+                setActiveCardId={setActiveCardId}
+                handleRecipeClick={handleRecipeClick}
+                sliderSettings={settings}
+                toggleFavorite={handleToggleFavorite}
+                onVoteUpdate={handleUserCreatedVoteUpdate}
+              />
+            </section>
+          )}
+        </>
       )}
 
       {/* Recipe Detail Modal */}
