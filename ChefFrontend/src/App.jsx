@@ -18,7 +18,7 @@ function App() {
   return (
     <AuthProvider>
       <FavoriteProvider>
-        <GoogleOAuthProvider clientId="GoogleClientId">
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || "GoogleClientId"}>
           <BrowserRouter>
             <Header />
             <Routes>

@@ -76,7 +76,12 @@ export default function LoginPage() {
             onSuccess={async idToken => {
               setMsg("");
               const ok = await googleLogin(idToken);
-              if (ok) setMsg("Google Login Success!");
+              if (ok) {
+                setMsg("Google Login Success!");
+                navigate('/');
+              } else {
+                setMsg("Google Login Failed");
+              }
             }}
             onError={err => setMsg(err)}
           />
