@@ -23,6 +23,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddScoped<FavoriteService>();
 builder.Services.AddScoped<VoteService>();
+builder.Services.AddScoped<CloudinaryService>();
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();

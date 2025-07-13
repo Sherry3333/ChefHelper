@@ -13,10 +13,12 @@ using Microsoft.AspNetCore.Http;
 public class RecipeController : ControllerBase{
     private readonly RecipeService _dbService;
     private readonly VoteService _voteService;
+    private readonly CloudinaryService _cloudinaryService;
 
-    public RecipeController(RecipeService recipeService, VoteService voteService){
+    public RecipeController(RecipeService recipeService, VoteService voteService, CloudinaryService cloudinaryService){
         _dbService = recipeService;
         _voteService = voteService;
+        _cloudinaryService = cloudinaryService;
     }
 
     //Get all 
@@ -85,22 +87,17 @@ public class RecipeController : ControllerBase{
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         string imageUrl = "";
 
-        // Save image file to wwwroot/uploads and generate URL
+        // Upload image to Cloudinary
         if (dto.Image != null && dto.Image.Length > 0)
         {
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.Image.FileName)}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            try
             {
-                await dto.Image.CopyToAsync(stream);
+                imageUrl = await _cloudinaryService.UploadImageAsync(dto.Image);
             }
-            // Generate image URL for client access
-            imageUrl = $"/uploads/{fileName}";
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Failed to upload image: {ex.Message}" });
+            }
         }
 
         // Deserialize ingredients from JSON string
@@ -155,39 +152,21 @@ public class RecipeController : ControllerBase{
         // Only update image if a new file is uploaded
         if (dto.Image != null && dto.Image.Length > 0)
         {
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.Image.FileName)}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            try
             {
-                await dto.Image.CopyToAsync(stream);
-            }
-            
-            // Delete old image file to save disk space (if exists and is not default image)
-            if (!string.IsNullOrEmpty(recipeDb.Image) && recipeDb.Image.StartsWith("/uploads/"))
-            {
-                var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", recipeDb.Image.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
-                if (System.IO.File.Exists(oldImagePath))
+                // Delete old image from Cloudinary if it exists
+                if (!string.IsNullOrEmpty(recipeDb.Image))
                 {
-                    try 
-                    { 
-                        System.IO.File.Delete(oldImagePath); 
-                    } 
-                    catch (Exception ex) 
-                    { 
-                        // Log error but don't fail the update operation
-                        // In production, you might want to use a proper logging framework
-                        Console.WriteLine($"Failed to delete old image: {ex.Message}");
-                    }
+                    await _cloudinaryService.DeleteImageAsync(recipeDb.Image);
                 }
+                
+                // Upload new image to Cloudinary
+                recipeDb.Image = await _cloudinaryService.UploadImageAsync(dto.Image);
             }
-            
-            // Generate new image URL for client access
-            recipeDb.Image = $"/uploads/{fileName}";
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Failed to update image: {ex.Message}" });
+            }
         }
         // If no new image, keep the old image
 
@@ -197,9 +176,15 @@ public class RecipeController : ControllerBase{
 
     [HttpDelete("{id}")]    
     public async Task<IActionResult> Delete(string id){ 
-         await _dbService.DeleteAsync(id);
-         return NoContent();
-
+        var recipe = await _dbService.GetByIdAsync(id);
+        if (recipe != null && !string.IsNullOrEmpty(recipe.Image))
+        {
+            // Delete image from Cloudinary
+            await _cloudinaryService.DeleteImageAsync(recipe.Image);
+        }
+        
+        await _dbService.DeleteAsync(id);
+        return NoContent();
     }
 
 
