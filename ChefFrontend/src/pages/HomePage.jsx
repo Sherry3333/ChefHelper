@@ -269,7 +269,7 @@ export default function HomePage() {
       {searchResults.length > 0 ? (
         <SearchResults
           searchResults={searchResults}
-          onRecipeClick={handleRecipeClick}
+          onRecipeClick={handleSeasonalRecipeClick}
           toggleFavorite={handleToggleFavorite}
           searchQuery={searchQuery}
           onVoteUpdate={() => {
