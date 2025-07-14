@@ -23,6 +23,7 @@ public class RecipeController : ControllerBase{
 
     //Get all 
     [HttpGet("all")]    
+    [AllowAnonymous]
     public async Task<List<Recipe>> Get() =>await _dbService.GetAsync();
 
     // get all recipes created by the current user
@@ -71,6 +72,7 @@ public class RecipeController : ControllerBase{
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult<Recipe>> GetById(string id){
     
         var recipe = await _dbService.GetByIdAsync(id);
