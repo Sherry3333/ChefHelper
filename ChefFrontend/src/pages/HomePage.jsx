@@ -5,7 +5,7 @@ import Modal from "../components/Modal";
 import SearchBar from "../components/SearchBar";
 import SearchResults from "../components/SearchResults";
 import RecipeCard from "../components/RecipeCard";
-import { fetchSeasonalRecipes, fetchRecipeDetail, toggleFavorite, fetchAllUserCreatedRecipes, normalizeRecipeFields } from "../services/recipesServices";
+import { fetchSeasonalRecipes, fetchRecipeDetail, toggleFavorite, fetchAllUserCreatedRecipes, fetchMyRecipeDetail, normalizeRecipeFields } from "../services/recipesServices";
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoriteContext";
 import { handleApiError } from "../utils/errorHandler";
@@ -87,10 +87,23 @@ export default function HomePage() {
     fetchData();
   }, [isLoggedIn]);
 
-  async function handleRecipeClick(id) {
+  // For seasonal recipes
+  async function handleSeasonalRecipeClick(id) {
     setActiveCardId(id);
     try {
       const detail = await fetchRecipeDetail(id);
+      setSelectedRecipeDetail(detail);
+    } catch (err) {
+      const errorMessage = handleApiError(err);
+      setError(errorMessage);
+    }
+  }
+
+  // For user created recipes
+  async function handleUserCreatedRecipeClick(id) {
+    setActiveCardId(id);
+    try {
+      const detail = await fetchMyRecipeDetail(id);
       setSelectedRecipeDetail(detail);
     } catch (err) {
       const errorMessage = handleApiError(err);
@@ -190,31 +203,31 @@ export default function HomePage() {
   };
 
   // react-slick settings
-  const settings = {
+  const getSliderSettings = (recipeCount) => ({
     dots: true,
-    infinite: true,
+    infinite: recipeCount > 4,
     speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 4,
-    autoplay: true,
+    slidesToShow: Math.min(4, recipeCount),
+    slidesToScroll: Math.min(4, recipeCount),
+    autoplay: recipeCount > 1,
     autoplaySpeed: 3000,
     responsive: [
       {
         breakpoint: 1200,
         settings: {
-          slidesToShow: 3,
-          slidesToScroll: 3,
+          slidesToShow: Math.min(3, recipeCount),
+          slidesToScroll: Math.min(3, recipeCount),
         }
       },
       {
         breakpoint: 800,
         settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+          slidesToShow: Math.min(1, recipeCount),
+          slidesToScroll: Math.min(1, recipeCount),
         }
       }
     ]
-  };
+  });
 
   return (
     <main>
@@ -277,8 +290,8 @@ export default function HomePage() {
                 recipes={seasonalRecipes}
                 activeCardId={activeCardId}
                 setActiveCardId={setActiveCardId}
-                handleRecipeClick={handleRecipeClick}
-                sliderSettings={settings}
+                handleRecipeClick={handleSeasonalRecipeClick}
+                sliderSettings={getSliderSettings(seasonalRecipes.length)}
                 toggleFavorite={handleToggleFavorite}
                 onVoteUpdate={handleSeasonalVoteUpdate}
               />
@@ -293,8 +306,8 @@ export default function HomePage() {
                 recipes={userCreatedRecipes}
                 activeCardId={activeCardId}
                 setActiveCardId={setActiveCardId}
-                handleRecipeClick={handleRecipeClick}
-                sliderSettings={settings}
+                handleRecipeClick={handleUserCreatedRecipeClick}
+                sliderSettings={getSliderSettings(userCreatedRecipes.length)}
                 toggleFavorite={handleToggleFavorite}
                 onVoteUpdate={handleUserCreatedVoteUpdate}
               />
