@@ -1,79 +1,150 @@
-# ChefBackend
+# 🍳 ChefHelper
 
-  
+> Your AI-powered sous-chef: discover, create, and cook smarter!
 
-A C# backend project for managing recipes, built with ASP.NET Core and MongoDB.
+---
 
-  
+## 🚀 Tech Stack
 
-## Project Structure
+- **Frontend:** React 19, Vite, React Router, Google OAuth, React Toastify, React Slick
+- **Backend:** ASP.NET Core 8, MongoDB, JWT Auth, Cloudinary, DotNetEnv, Swagger
+- **AI:** OpenAI GPT-3.5-turbo (ingredient-to-recipe magic)
+- **APIs:** Spoonacular (recipe data)
+- **Cloud:** Render (deployment), Cloudinary (image storage)
+- **DevOps:** Docker, docker-compose
 
-  
+---
 
-ChefBackend/ # Root folder for the backend project
+## 🌟 Features (by App Page)
 
-├── ChefBackend.sln # Visual Studio solution file
+### 🏠 Home
+- **Seasonal Recipe Carousel:**
+  - Get timely, location-based seasonal recipe recommendations right on the homepage!
+  - Uses your browser's location and local time to personalize seasonal picks—just like a real chef who knows what's fresh in your area!
+- **Search Recipes:**
+  - Search and filter thousands of recipes from Spoonacular.
+- **Create Your Own Recipe:**
+  - Publish your own culinary creations with image upload (Cloudinary).
+- **User Creations Showcase:**
+  - Browse recipes created by the ChefHelper community.
+- **Like & Favorite:**
+  - Like and favorite any recipe you love for easy access later.
 
-├── ChefBackend.csproj # C# project file
+### 🧊 Fridge AI
+- **Ingredient-to-Recipe AI:**
+  - Add your fridge ingredients and let AI (GPT-3.5-turbo) generate a creative recipe just for you!
+- **Spoonacular Recommendations:**
+  - Get instant recipe suggestions from the Spoonacular API based on your ingredients.
 
-├── Program.cs # Application entry point (contains the Main method)
+### 📚 My Recipes
+- **My Favorites:**
+  - View and manage all recipes you’ve favorited.
+- **My Creations:**
+  - See, edit, or delete all recipes you’ve published.
 
-├── Controllers/ # API controllers (handle HTTP requests)
+### 👤 Login & Register
+- **Email Registration & Login:**
+  - Secure JWT-based authentication for all users.
+- **Google One-Click Login:**
+  - Sign in instantly with your Google account.
 
-│ └── RecipeController.cs # Controller for managing recipe-related endpoints
+---
 
-├── Models/ # Data models (represent business entities)
+## 🖼️ Screenshots
 
-│ ├── MongoDbSettings.cs # Configuration settings for MongoDB connection
+### 🏠 Home
+![Home Page](./ChefFrontend/public/screenshots/home.png)
+*Seasonal recipe carousel and quick search.*
 
-│ └── Recipes.cs # Data model for recipes
+### 🔍 Recipe Detail
+![Recipe Detail](./ChefFrontend/public/screenshots/recipe-detail.png)
+*Full recipe details, ingredients, and instructions.*
 
-├── Properties/ # Project properties and configuration files
+### 📝 Create Recipe
+![Create Recipe](./ChefFrontend/public/screenshots/create-recipe.png)
+*Publish your own culinary creation with image upload.*
 
-│ └── launchSettings.json # Debug and launch configurations for development
+### 🧊 Fridge AI
+![Fridge AI - Input](./ChefFrontend/public/screenshots/fridgeAI1.png)
+*Enter fridge ingredients for AI suggestions.*
 
-├── Services/ # Business logic and service classes
+![Fridge AI - Results](./ChefFrontend/public/screenshots/fridgeAI2.png)
+*See both AI-generated and Spoonacular-recommended recipes.*
 
-│ └── DbService.cs # Service for database operations and data access
+### 📚 My Recipes
+![My Favorites](./ChefFrontend/public/screenshots/saved-recipes.png)
+*All your favorited recipes in one place.*
 
-├── appsettings.json # Main application configuration file
+![My Creations](./ChefFrontend/public/screenshots/my-creations.png)
+*Manage recipes you have published.*
 
-└── appsettings.Development.json # Development-specific configuration settings
+### 👤 Login / Profile
+![Login](./ChefFrontend/public/screenshots/profile.png)
+*Login, register, and manage your profile.*
 
-  
+---
 
-## Getting Started
-
-  
+## 🛠️ Installation & Local Development
 
 ### Prerequisites
+- Node.js & npm
+- .NET 8 SDK
+- MongoDB (local or cloud)
 
-  
-- [Visual Studio Code](https://code.visualstudio.com/) or another IDE for editing C# code
-- add C# Dev Kit Extension if you use VS Code
-- [.NET SDK](https://dotnet.microsoft.com/download)
-- [MongoDB](https://www.mongodb.com/try/download/community)
+### 1. Clone the repo
+```bash
+git clone https://github.com/your-username/ChefHelper.git
+cd ChefHelper
+```
 
+### 2. Setup Backend
+```bash
+cd ChefBackend
+# Restore dependencies
+dotnet restore
+# Configure your .env (MongoDB, OpenAI, Spoonacular, Cloudinary keys)
+# Run the backend
+dotnet watch run
+```
 
+### 3. Setup Frontend
+```bash
+cd ../ChefFrontend
+npm install
+# Configure API endpoint in src/services/recipesServices.js
+npm run dev
+```
 
-  
+### 4. Docker (optional)
+```bash
+docker-compose up --build
+```
 
-### Installation
+---
 
-1.  ****Clone the Repository on your local machine****
-2.  ****Restore Dependencies****
-     > dotnet restore
-3.  ****Updete the MongoDB connection string in .env file****
-4.  ****Start the project****
-     > dotnet watch run
- 
+## 🌐 Live Demo
 
-# ChefFrontend
+> [Try it!](https://chefhelper.onrender.com/) 
 
-### Installation
-1.  ****Clone the Repository on your local machine****
-2.  ****Restore Dependencies****
-     > npm install
-3.  ****Updete the backend connection string in recipesServices.js file under hooks folder****
-4.  ****Start the project****
-     > npm run dev
+---
+
+## ✨ Highlights & What I Learned
+
+- **AI + Food:** Seamlessly integrated OpenAI GPT-3.5-turbo for creative, ingredient-based recipe generation.
+- **API Mashup:** Combined Spoonacular’s massive recipe database with user-generated content.
+- **Cloud Storage:** Used Cloudinary for robust, scalable image uploads.
+- **Modern Auth:** JWT + Google OAuth for secure, user-friendly login.
+- **Fullstack DevOps:** Dockerized, CI/CD, and deployed on Render for a true cloud-native experience.
+- **Frontend Polish:** Responsive, mobile-friendly UI with React, Vite, and slick carousels.
+- **API Design:** Designed RESTful endpoints for clean frontend-backend separation.
+- **Learned:** OAuth, CORS, cloud deployment, AI API integration, and the joy (and pain) of debugging fullstack apps!
+
+---
+
+## 📬 Contact
+
+Feel free to reach out for feedback, collaboration, or just to talk food & code!
+
+---
+
+> _Bon appétit & happy coding!_
