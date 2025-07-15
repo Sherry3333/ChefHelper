@@ -1,0 +1,15 @@
+version: '3'
+services:
+  backend:
+    image: sherry3333/chef-backend:latest
+    env_file:
+      - ./backend.env
+    ports:
+      - "5218:8080"
+
+  frontend:
+    image: sherry3333/chef-frontend:latest
+    env_file:
+      - ./frontend.env
+    ports:
+      - "80:80" 

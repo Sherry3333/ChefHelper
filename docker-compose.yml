@@ -1,36 +1,23 @@
+version: '3'
 services:
-  frontend:
-    build:
-      context: ./ChefFrontend
-      dockerfile: Dockerfile
-    ports:
-      - "5000:80"  
-    depends_on:
-      - backend
-
   backend:
     build:
       context: ./ChefBackend
       dockerfile: Dockerfile
+    image: sherry3333/chef-backend:latest
+    env_file:
+      - ./ChefBackend/.env
     ports:
-      - "5218:8080"  
-    environment:
-      - ASPNETCORE_ENVIRONMENT=PRODUCTION
-      - MONGO_CONNECTION_STRING=mongodb://mongo:27017
-      - MONGO_DATABASE=ChefClause
-      - MONGO_COLLECTION=Recipes
-    depends_on:
-      - mongo
+      - "5218:8080"
 
-  mongo:
-    image: mongo:latest
-    container_name: mongo
+  frontend:
+    build:
+      context: ./ChefFrontend
+      dockerfile: Dockerfile
+    image: sherry3333/chef-frontend:latest
+    env_file:
+      - ./ChefFrontend/.env
     ports:
-      - "27018:27017"
-    volumes:
-      - chef-mongo-data:/data/db
-
-volumes:
-  chef-mongo-data:
+      - "80:80"
    
    
