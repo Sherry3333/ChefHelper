@@ -67,9 +67,10 @@ jobs:
   deploy-ec2:
     runs-on: ubuntu-latest
     needs: [build-push-backend, build-push-frontend, detect-changes]
-    if: needs.detect-changes.outputs.backend_changed == 'true' || needs.detect-changes.outputs.frontend_changed == 'true'
+    if: always()  # allow all jobs to run 
     steps:
       - name: Deploy on EC2 with docker-compose.prod.yml
+        if: needs.detect-changes.outputs.backend_changed == 'true' || needs.detect-changes.outputs.frontend_changed == 'true'
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
