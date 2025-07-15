@@ -122,7 +122,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers(); //make sure Api controllers are mapped
-
 app.Run();
 
 
