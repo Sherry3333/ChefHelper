@@ -55,6 +55,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Write .env file for frontend
+        run: |
+          echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" > ChefFrontend/.env
+
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 

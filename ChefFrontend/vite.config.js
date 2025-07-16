@@ -10,7 +10,9 @@ export default defineConfig({
       '/myrecipe': 'http://localhost:5218',
       '/auth': 'http://localhost:5218',
       '/user': 'http://localhost:5218',
-      '/favorites': 'http://localhost:5218'
+      '/favorites': 'http://localhost:5218',
+      '/votes': 'http://localhost:5218',
+      '/ai': 'http://localhost:5218'
     }
   },
   test: {
