@@ -10,8 +10,8 @@
 - **Backend:** ASP.NET Core 8, MongoDB, JWT Auth, Cloudinary, DotNetEnv, Swagger
 - **AI:** OpenAI GPT-3.5-turbo (ingredient-to-recipe magic)
 - **APIs:** Spoonacular (recipe data)
-- **Cloud:** Render (deployment), Cloudinary (image storage)
-- **DevOps:** Docker, docker-compose
+- **Cloud:** Cloudinary (image storage), AWS
+- **DevOps:** Docker, docker-compose, Github Action
 
 ---
 
@@ -124,7 +124,7 @@ docker-compose up --build
 
 ## 🌐 Live Demo
 
-> [Try it!](https://chefhelper.onrender.com/) 
+> [Try it!](https://chefhelper.art/) 
 
 ---
 
