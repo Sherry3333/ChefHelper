@@ -182,7 +182,7 @@ function buildRecipeKey(recipe) {
 
 export async function fetchFavoriteRecipes() {
     try {
-        const response = await axiosInstance.get('/favorites');
+        const response = await axiosInstance.get('/favorites/');
         return response.data;
     } catch (error) {
         console.error('Failed to fetch favorite recipes:', error);
@@ -193,7 +193,7 @@ export async function fetchFavoriteRecipes() {
 // Add a recipe to favorites (requires JWT)
 export async function addFavorite(recipe) {
     try {
-        await axiosInstance.post('/favorites', buildRecipeKey(recipe));
+        await axiosInstance.post('/favorites/', buildRecipeKey(recipe));
     } catch (error) {
         console.error('Failed to add favorite:', error);
         throw error;
@@ -203,7 +203,7 @@ export async function addFavorite(recipe) {
 // Remove a recipe from favorites (requires JWT)
 export async function removeFavorite(recipe) {
     try {
-        await axiosInstance.delete('/favorites', {
+        await axiosInstance.delete('/favorites/', {
             data: buildRecipeKey(recipe)
         });
     } catch (error) {
@@ -215,11 +215,11 @@ export async function removeFavorite(recipe) {
 // --- Vote-related API ---
 
 export async function addVote(recipe) {
-    await axiosInstance.post('/votes', buildRecipeKey(recipe));
+    await axiosInstance.post('/votes/', buildRecipeKey(recipe));
 }
 
 export async function removeVote(recipe) {
-    await axiosInstance.delete('/votes', {
+    await axiosInstance.delete('/votes/', {
         data: buildRecipeKey(recipe)
     });
 }

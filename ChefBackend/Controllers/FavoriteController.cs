@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 [ApiController]
-[Route("favorites")]
+[Route("favorites/")]
 public class FavoriteController : ControllerBase
 {
     private readonly FavoriteService _favoriteService;

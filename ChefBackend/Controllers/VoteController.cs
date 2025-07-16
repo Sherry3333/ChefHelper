@@ -12,7 +12,7 @@ public class VoteRequest
 }
 
 [ApiController]
-[Route("votes")]
+[Route("votes/")]
 public class VoteController : ControllerBase
 {
     private readonly VoteService _voteService;

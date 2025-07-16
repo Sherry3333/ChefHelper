@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 [ApiController]
-[Route("ai")] // Route is now /ai
+[Route("ai/")] // Route is now /ai/
 public class AiRecipeController : ControllerBase
 {
     private readonly IHttpClientFactory _httpClientFactory;
