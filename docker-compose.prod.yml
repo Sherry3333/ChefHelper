@@ -9,7 +9,5 @@ services:
 
   frontend:
     image: sherry3333/chef-frontend:latest
-    env_file:
-      - ./frontend.env
     ports:
       - "80:80" 
